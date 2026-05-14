@@ -8,6 +8,7 @@ import { buildCanonicalUrl } from "../utils/meta";
 import { commentSchema } from "../validations/comment.validation";
 import { buildYoutubePreview } from "../utils/youtube";
 import { getYoutubeDefaultLabel } from "../utils/media";
+import { resolveBannerItems } from "../utils/banner";
 
 type CommentRow = {
   id: string;
@@ -164,7 +165,18 @@ export const blogController = {
         ? post.featuredImage
         : buildCanonicalUrl(baseUrl, post.featuredImage)
       : undefined;
-    const shareImageUrl = featuredImageUrl || buildCanonicalUrl(baseUrl, "/uploads/2026/05/10dbd22d-5644-4174-ab95-d055485e73be.webp");
+    const bannerItems = resolveBannerItems(post.bannerItems, {
+      bannerImage: post.bannerImage,
+      bannerUrl: post.bannerUrl,
+      bannerPosition: post.bannerPosition
+    }).map((item) => ({
+      ...item,
+      imageUrl: /^https?:\/\//i.test(item.image) ? item.image : buildCanonicalUrl(baseUrl, item.image)
+    }));
+    const bannerImageUrl = bannerItems[0]?.imageUrl
+      ? bannerItems[0].imageUrl
+      : undefined;
+    const shareImageUrl = featuredImageUrl || bannerImageUrl || buildCanonicalUrl(baseUrl, "/uploads/2026/05/10dbd22d-5644-4174-ab95-d055485e73be.webp");
     const youtubePreview = buildYoutubePreview(post.youtubeUrl);
     const metaDescription = post.seoDescription ?? post.excerpt ?? post.subheadline ?? post.title;
 
@@ -187,6 +199,8 @@ export const blogController = {
       publishedAt,
       commentStatus,
       featuredImageUrl,
+      bannerImageUrl,
+      bannerItems,
       youtubePreview,
       defaultYoutubeLabel: getYoutubeDefaultLabel()
     });

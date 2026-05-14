@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title><%= (typeof title !== "undefined" ? title : "Taxonomy") %> · CMS Professional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, #f5f8fd 0%, #eef4fb 100%);
+      color: #0f172a;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+  <% const safeErrors = typeof errors !== "undefined" && errors ? errors : {}; %>
+  <% const safeValues = typeof values !== "undefined" && values ? values : {}; %>
+  <% const fieldErrors = Object.values(safeErrors).flat(); %>
+  <% const taxonomyItems = taxonomyKind === "tag" ? (typeof tags !== "undefined" ? tags : []) : (typeof categories !== "undefined" ? categories : []); %>
+  <% const countKey = taxonomyKind === "tag" ? "postTags" : "postCategories"; %>
+  <% const kindLabel = taxonomySingular || (taxonomyKind === "tag" ? "Tag" : "Kategori"); %>
+  <% const emptyLabel = taxonomyKind === "tag" ? "Belum ada tag yang tersimpan." : "Belum ada kategori yang tersimpan."; %>
+  <% const searchPlaceholder = taxonomyKind === "tag" ? "Cari berdasarkan nama atau slug tag..." : "Cari berdasarkan nama atau slug kategori..."; %>
+
+  <div class="min-h-screen px-4 py-6 sm:px-6 lg:px-8" data-taxonomy-admin data-taxonomy-kind="<%= taxonomyKind %>">
+    <div class="mx-auto max-w-7xl space-y-6">
+      <section class="overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.08)]">
+        <div class="relative overflow-hidden bg-gradient-to-r from-brand-900 via-brand-800 to-sky-700 px-6 py-7 sm:px-8">
+          <div class="absolute inset-y-0 right-0 w-72 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_55%)]"></div>
+          <div class="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="space-y-3">
+              <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.25em] text-white/80 backdrop-blur">
+                <i class="fas fa-layer-group"></i>
+                Taxonomy Management
+              </div>
+              <div>
+                <h1 class="text-3xl font-bold tracking-tight text-white sm:text-[2.15rem]">
+                  <i class="fas <%= taxonomyIcon || 'fa-layer-group' %> mr-2 text-white/80"></i><%= taxonomyTitle || kindLabel %>
+                </h1>
+                <p class="mt-2 max-w-3xl text-sm leading-6 text-white/75">
+                  Kelola <%= kindLabel.toLowerCase() %> dengan modal popup, pencarian, dan pagination yang responsif.
+                </p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur">
+                <i class="fas fa-database"></i>
+                <%= total %> item
+              </span>
+              <button type="button" class="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-brand-800 shadow-lg shadow-black/10 transition hover:-translate-y-0.5" data-taxonomy-modal-open="<%= taxonomyKind %>">
+                <i class="fas fa-plus"></i>
+                <%= taxonomyCreateLabel || `Tambah ${kindLabel}` %>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-[1.75rem] border border-slate-200/70 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.05)] sm:p-5">
+        <form method="get" action="<%= taxonomyKind === 'tag' ? '/admin/tags' : '/admin/categories' %>" class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+          <div>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Cari</label>
+            <input
+              name="q"
+              value="<%= q || '' %>"
+              placeholder="<%= searchPlaceholder %>"
+              class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+            />
+          </div>
+          <div class="flex items-end gap-2">
+            <button type="submit" class="rounded-2xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-800">
+              <i class="fas fa-search mr-2"></i>Filter
+            </button>
+            <% if (q) { %>
+              <a href="<%= taxonomyKind === 'tag' ? '/admin/tags' : '/admin/categories' %>" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                <i class="fas fa-times mr-2"></i>Reset
+              </a>
+            <% } %>
+          </div>
+        </form>
+      </section>
+
+      <% if (fieldErrors.length) { %>
+        <section class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <% fieldErrors.forEach((item) => { %>
+            <div><%= item %></div>
+          <% }) %>
+        </section>
+      <% } %>
+
+      <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <% if (!taxonomyItems.length) { %>
+          <div class="sm:col-span-2 xl:col-span-3 rounded-[1.5rem] border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-slate-500 shadow-sm">
+            <i class="fas fa-folder-open mb-3 text-3xl text-slate-300"></i>
+            <p class="text-sm font-medium"><%= emptyLabel %></p>
+            <p class="mt-1 text-xs text-slate-400">Gunakan tombol tambah untuk membuat data baru.</p>
+          </div>
+        <% } %>
+
+        <% taxonomyItems.forEach((item) => { %>
+          <article class="group overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-[0_10px_24px_rgba(15,23,42,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(15,23,42,0.08)]">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <div class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-brand-700">
+                  <i class="fas <%= taxonomyKind === 'tag' ? 'fa-tags' : 'fa-folder-tree' %>"></i>
+                  <%= kindLabel %>
+                </div>
+                <h3 class="mt-3 truncate text-lg font-semibold text-slate-900"><%= item.name %></h3>
+                <code class="mt-2 inline-flex max-w-full rounded-xl bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500"><%= item.slug %></code>
+              </div>
+              <div class="rounded-2xl bg-slate-50 p-3 text-slate-400">
+                <i class="fas <%= taxonomyIcon || 'fa-layer-group' %> text-xl"></i>
+              </div>
+            </div>
+
+            <dl class="mt-5 grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-2xl bg-slate-50 px-3 py-3">
+                <dt class="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-400">Posts</dt>
+                <dd class="mt-1 font-semibold text-slate-800"><%= item._count?.[countKey] || 0 %></dd>
+              </div>
+              <div class="rounded-2xl bg-slate-50 px-3 py-3">
+                <dt class="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-400">Diperbarui</dt>
+                <dd class="mt-1 font-semibold text-slate-800"><%= new Date(item.updatedAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) %></dd>
+              </div>
+            </dl>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                data-taxonomy-edit
+                data-taxonomy-kind="<%= taxonomyKind %>"
+                data-taxonomy-id="<%= item.id %>"
+                data-taxonomy-name="<%= item.name %>"
+                data-taxonomy-slug="<%= item.slug %>"
+              >
+                <i class="fas fa-pen-to-square"></i>Edit
+              </button>
+              <button
+                type="button"
+                class="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                data-taxonomy-delete
+                data-taxonomy-kind="<%= taxonomyKind %>"
+                data-taxonomy-id="<%= item.id %>"
+                data-taxonomy-name="<%= item.name %>"
+              >
+                <i class="fas fa-trash"></i>Hapus
+              </button>
+            </div>
+          </article>
+        <% }) %>
+      </section>
+
+      <% if (typeof pagination !== 'undefined' && pagination && pagination.totalPages > 1) { %>
+        <section class="flex justify-center">
+          <nav class="inline-flex flex-wrap items-center gap-2 rounded-[1.4rem] border border-slate-200 bg-white px-3 py-3 shadow-sm">
+            <% if (pagination.hasPrev) { %>
+              <a href="?page=<%= pagination.prevPage %><%= q ? `&q=${encodeURIComponent(q)}` : '' %>" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            <% } else { %>
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-100 text-slate-300"><i class="fas fa-chevron-left"></i></span>
+            <% } %>
+
+            <% pagination.pages.forEach((item) => { %>
+              <% if (item.current) { %>
+                <span class="inline-flex h-10 min-w-10 items-center justify-center rounded-xl bg-brand-700 px-4 text-sm font-semibold text-white shadow-sm"><%= item.number %></span>
+              <% } else { %>
+                <a href="<%= item.url %>" class="inline-flex h-10 min-w-10 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-50"><%= item.number %></a>
+              <% } %>
+            <% }) %>
+
+            <% if (pagination.hasNext) { %>
+              <a href="?page=<%= pagination.nextPage %><%= q ? `&q=${encodeURIComponent(q)}` : '' %>" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            <% } else { %>
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-100 text-slate-300"><i class="fas fa-chevron-right"></i></span>
+            <% } %>
+          </nav>
+        </section>
+      <% } %>
+
+      <section class="text-center text-xs text-slate-400">
+        Total <%= total %> <%= kindLabel.toLowerCase() %> · data ditampilkan dengan pagination yang rapi
+      </section>
+    </div>
+
+    <div class="fixed inset-0 z-50 hidden" data-taxonomy-modal aria-hidden="true">
+      <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" data-taxonomy-modal-close></div>
+      <div class="relative mx-auto mt-24 w-[min(92vw,34rem)] overflow-hidden rounded-[1.5rem] border border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] shadow-[0_24px_72px_rgba(15,23,42,0.22)]">
+        <div class="flex items-start justify-between gap-4 border-b border-[color:var(--wp-border)] px-5 py-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600" data-taxonomy-modal-kicker><%= kindLabel %></p>
+            <h3 class="mt-1 text-lg font-semibold" data-taxonomy-modal-title>Tambah <%= kindLabel %></h3>
+            <p class="mt-1 text-sm text-slate-500" data-taxonomy-modal-description>Masukkan nama baru lalu simpan untuk menambahkannya ke daftar.</p>
+          </div>
+          <button type="button" class="wp-btn wp-btn-secondary" data-taxonomy-modal-close>Tutup</button>
+        </div>
+      <form class="space-y-4 p-5" data-taxonomy-modal-form>
+          <input type="hidden" name="kind" data-taxonomy-modal-kind value="<%= taxonomyKind %>" />
+          <input type="hidden" name="mode" data-taxonomy-modal-mode value="create" />
+          <input type="hidden" name="id" data-taxonomy-modal-id value="" />
+        <div>
+          <label class="label" for="taxonomyModalName">Nama</label>
+          <textarea class="input min-h-28 text-slate-900 placeholder:text-slate-400" id="taxonomyModalName" rows="4" placeholder="<%= taxonomyKind === 'tag' ? 'Productivity, Design, News' : 'Technology, Lifestyle, Travel' %>" data-taxonomy-modal-input></textarea>
+          <p class="mt-2 text-xs text-slate-500" data-taxonomy-modal-help>Pisahkan beberapa item dengan koma saat menambah data baru.</p>
+          <div class="mt-3 hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" data-taxonomy-modal-errors></div>
+        </div>
+          <div class="flex flex-wrap justify-end gap-3">
+            <button type="button" class="wp-btn wp-btn-secondary" data-taxonomy-modal-close>Batal</button>
+            <button type="submit" class="wp-btn wp-btn-primary" data-taxonomy-modal-submit>Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      window.CMS_TAXONOMY_KIND = <%- JSON.stringify(taxonomyKind) %>;
+    </script>
+  </div>
+</body>
+
+</html>

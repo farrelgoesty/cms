@@ -14,6 +14,7 @@ exports.isSafeSvgContent = isSafeSvgContent;
 exports.getMediaTypeFilterOptions = getMediaTypeFilterOptions;
 exports.getYoutubeLabelOptions = getYoutubeLabelOptions;
 exports.getYoutubeDefaultLabel = getYoutubeDefaultLabel;
+exports.normalizeLinkUrl = normalizeLinkUrl;
 exports.buildMediaInsertHtml = buildMediaInsertHtml;
 const path_1 = __importDefault(require("path"));
 exports.MAX_MEDIA_UPLOAD_BYTES = 5 * 1024 * 1024;
@@ -154,12 +155,25 @@ function getYoutubeLabelOptions() {
 function getYoutubeDefaultLabel() {
     return exports.DEFAULT_YOUTUBE_LABEL;
 }
+function normalizeLinkUrl(value) {
+    const trimmed = String(value ?? "").trim();
+    if (!trimmed) {
+        return "";
+    }
+    if (/^(https?:\/\/|\/|#|mailto:|tel:)/i.test(trimmed)) {
+        return trimmed;
+    }
+    if (/\s/.test(trimmed)) {
+        return "";
+    }
+    return `https://${trimmed}`;
+}
 function buildMediaInsertHtml(params) {
     const safeName = params.fileName.replace(/"/g, "&quot;");
     const href = params.filePath;
     const previewUrl = params.previewUrl || params.filePath;
     const altText = params.altText?.trim() || params.fileName;
-    const linkUrl = params.linkUrl?.trim() || "";
+    const linkUrl = normalizeLinkUrl(params.linkUrl);
     if (params.kind === "image") {
         const imageHtml = `<img src="${previewUrl}" alt="${altText.replace(/"/g, "&quot;")}" loading="lazy" decoding="async" />`;
         return linkUrl

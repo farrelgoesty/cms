@@ -10,6 +10,7 @@ const media_1 = require("../../utils/media");
 const flash_1 = require("../../utils/flash");
 const category_service_1 = require("../../services/category.service");
 const tag_service_1 = require("../../services/tag.service");
+const banner_1 = require("../../utils/banner");
 function pageQuery(value) {
     const parsed = Number(value);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
@@ -112,6 +113,10 @@ exports.postController = {
             youtubePosition: parsed.data.youtubePosition,
             content: parsed.data.content,
             ...(parsed.data.featuredImage ? { featuredImage: parsed.data.featuredImage } : {}),
+            bannerItems: parsed.data.bannerItems,
+            ...(parsed.data.bannerImage ? { bannerImage: parsed.data.bannerImage } : {}),
+            ...(parsed.data.bannerUrl ? { bannerUrl: parsed.data.bannerUrl } : {}),
+            bannerPosition: parsed.data.bannerPosition,
             ...(parsed.data.seoTitle ? { seoTitle: parsed.data.seoTitle } : {}),
             ...(parsed.data.seoDescription ? { seoDescription: parsed.data.seoDescription } : {}),
             status: parsed.data.status,
@@ -188,6 +193,10 @@ exports.postController = {
             youtubePosition: parsed.data.youtubePosition,
             content: parsed.data.content,
             ...(parsed.data.featuredImage ? { featuredImage: parsed.data.featuredImage } : {}),
+            bannerItems: parsed.data.bannerItems,
+            ...(parsed.data.bannerImage ? { bannerImage: parsed.data.bannerImage } : {}),
+            ...(parsed.data.bannerUrl ? { bannerUrl: parsed.data.bannerUrl } : {}),
+            bannerPosition: parsed.data.bannerPosition,
             ...(parsed.data.seoTitle ? { seoTitle: parsed.data.seoTitle } : {}),
             ...(parsed.data.seoDescription ? { seoDescription: parsed.data.seoDescription } : {}),
             status: parsed.data.status,
@@ -210,6 +219,17 @@ exports.postController = {
                 ? post.post.featuredImage
                 : (0, meta_1.buildCanonicalUrl)(baseUrl, post.post.featuredImage)
             : undefined;
+        const bannerItems = (0, banner_1.resolveBannerItems)(post.post.bannerItems, {
+            bannerImage: post.post.bannerImage,
+            bannerUrl: post.post.bannerUrl,
+            bannerPosition: post.post.bannerPosition
+        }).map((item) => ({
+            ...item,
+            imageUrl: /^https?:\/\//i.test(item.image) ? item.image : (0, meta_1.buildCanonicalUrl)(baseUrl, item.image)
+        }));
+        const bannerImageUrl = bannerItems[0]?.imageUrl
+            ? bannerItems[0].imageUrl
+            : undefined;
         res.render("blog/post", {
             layout: "layouts/blog",
             title: post.post.seoTitle ?? post.post.title,
@@ -217,7 +237,7 @@ exports.postController = {
                 title: post.post.seoTitle ?? post.post.title,
                 description: post.post.seoDescription ?? post.post.excerpt ?? post.post.subheadline ?? post.post.title,
                 canonical: `${baseUrl}/admin/posts/${post.post.id}/preview`,
-                image: featuredImageUrl,
+                image: featuredImageUrl || bannerImageUrl,
                 type: "article",
                 robots: "noindex,follow"
             },
@@ -230,6 +250,8 @@ exports.postController = {
             publishedAt: post.post.publishedAt ?? post.post.createdAt,
             commentStatus: "",
             featuredImageUrl,
+            bannerImageUrl,
+            bannerItems,
             youtubePreview: (0, youtube_1.buildYoutubePreview)(post.post.youtubeUrl),
             isPreview: true,
             defaultYoutubeLabel: (0, media_1.getYoutubeDefaultLabel)()

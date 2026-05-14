@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "npm run build && node dist/src/server.js",
     "dev:watch": "tsx watch src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && xcopy src\\public\\js\\app.js public\\js\\app.js /Y /I && xcopy src\\public\\css\\app.css public\\css\\app.css /Y /I",
     "start": "node dist/src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

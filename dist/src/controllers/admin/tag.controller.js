@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.categoryController = void 0;
-const category_service_1 = require("../../services/category.service");
-const category_validation_1 = require("../../validations/category.validation");
+exports.tagController = void 0;
+const tag_service_1 = require("../../services/tag.service");
+const tag_validation_1 = require("../../validations/tag.validation");
 const pagination_1 = require("../../utils/pagination");
 const flash_1 = require("../../utils/flash");
 function pageQuery(value) {
@@ -25,25 +25,25 @@ function buildPageUrl(page, q = "") {
         params.set("page", String(page));
     }
     const search = params.toString();
-    return search ? `/admin/categories?${search}` : "/admin/categories";
+    return search ? `/admin/tags?${search}` : "/admin/tags";
 }
 function renderPage(res, options) {
     return res.render("admin/taxonomies/index", {
         layout: "layouts/admin",
-        title: "Categories",
-        taxonomyKind: "category",
-        taxonomyTitle: "Categories",
-        taxonomySingular: "Kategori",
-        taxonomyCreateLabel: "Tambah Kategori",
-        taxonomyIcon: "fa-folder-tree",
+        title: "Tags",
+        taxonomyKind: "tag",
+        taxonomyTitle: "Tags",
+        taxonomySingular: "Tag",
+        taxonomyCreateLabel: "Tambah Tag",
+        taxonomyIcon: "fa-tags",
         ...options
     });
 }
 function renderListData(page, q) {
-    return category_service_1.categoryService.listAdmin(page, 9, q).then(({ items, total }) => {
+    return tag_service_1.tagService.listAdmin(page, 9, q).then(({ items, total }) => {
         const pagination = (0, pagination_1.buildPagination)(page, total, 9);
         return {
-            categories: items,
+            tags: items,
             total,
             pagination: {
                 ...pagination,
@@ -57,7 +57,7 @@ function renderListData(page, q) {
         };
     });
 }
-exports.categoryController = {
+exports.tagController = {
     async index(req, res) {
         const page = pageQuery(req.query.page);
         const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
@@ -68,18 +68,18 @@ exports.categoryController = {
             q,
             errors: undefined,
             values: {},
-            editingCategory: null
+            editingTag: null
         });
     },
     async store(req, res) {
-        const parsed = category_validation_1.categorySchema.safeParse(req.body);
+        const parsed = tag_validation_1.tagSchema.safeParse(req.body);
         const page = pageQuery(req.query.page);
         const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
         const data = await renderListData(page, q);
         if (!parsed.success) {
             if (wantsJson(req)) {
                 return res.status(422).json({
-                    error: "Periksa kembali isian category.",
+                    error: "Periksa kembali isian tag.",
                     errors: parsed.error.flatten().fieldErrors
                 });
             }
@@ -87,46 +87,46 @@ exports.categoryController = {
                 ...data,
                 page,
                 q,
-                notice: "Periksa kembali isian category.",
+                notice: "Periksa kembali isian tag.",
                 noticeType: "warning",
-                editingCategory: null,
+                editingTag: null,
                 errors: parsed.error.flatten().fieldErrors,
                 values: req.body
             });
         }
-        const item = await category_service_1.categoryService.create(parsed.data.name);
+        const item = await tag_service_1.tagService.create(parsed.data.name);
         if (wantsJson(req)) {
             return res.json({ item });
         }
-        return res.redirect((0, flash_1.appendNotice)(buildPageUrl(page, q), "Category berhasil ditambahkan.", "success"));
+        return res.redirect((0, flash_1.appendNotice)(buildPageUrl(page, q), "Tag berhasil ditambahkan.", "success"));
     },
     async editForm(req, res) {
         const page = pageQuery(req.query.page);
         const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
         const data = await renderListData(page, q);
-        const editingCategory = await category_service_1.categoryService.findById(routeParam(req.params.id));
-        if (!editingCategory) {
+        const editingTag = await tag_service_1.tagService.findById(routeParam(req.params.id));
+        if (!editingTag) {
             return res.status(404).render("errors/404", { layout: "layouts/blog", title: "Not found" });
         }
         return renderPage(res, {
             ...data,
             page,
             q,
-            editingCategory,
+            editingTag,
             errors: undefined,
             values: {}
         });
     },
     async update(req, res) {
-        const parsed = category_validation_1.categorySchema.safeParse(req.body);
+        const parsed = tag_validation_1.tagSchema.safeParse(req.body);
         const page = pageQuery(req.query.page);
         const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
         const data = await renderListData(page, q);
-        const editingCategory = await category_service_1.categoryService.findById(routeParam(req.params.id));
+        const editingTag = await tag_service_1.tagService.findById(routeParam(req.params.id));
         if (!parsed.success) {
             if (wantsJson(req)) {
                 return res.status(422).json({
-                    error: "Periksa kembali isian category.",
+                    error: "Periksa kembali isian tag.",
                     errors: parsed.error.flatten().fieldErrors
                 });
             }
@@ -134,27 +134,26 @@ exports.categoryController = {
                 ...data,
                 page,
                 q,
-                notice: "Periksa kembali isian category.",
+                notice: "Periksa kembali isian tag.",
                 noticeType: "warning",
-                editingCategory,
+                editingTag,
                 errors: parsed.error.flatten().fieldErrors,
                 values: req.body
             });
         }
-        const item = await category_service_1.categoryService.update(routeParam(req.params.id), parsed.data.name);
+        const item = await tag_service_1.tagService.update(routeParam(req.params.id), parsed.data.name);
         if (wantsJson(req)) {
             return res.json({ item });
         }
-        return res.redirect((0, flash_1.appendNotice)(buildPageUrl(page, q), "Category berhasil diperbarui.", "success"));
+        return res.redirect((0, flash_1.appendNotice)(buildPageUrl(page, q), "Tag berhasil diperbarui.", "success"));
     },
     async destroy(req, res) {
-        const id = routeParam(req.params.id);
-        await category_service_1.categoryService.delete(id);
+        await tag_service_1.tagService.delete(routeParam(req.params.id));
         const page = pageQuery(req.query.page);
         const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
         if (wantsJson(req)) {
-            return res.json({ success: true, id });
+            return res.json({ success: true, id: routeParam(req.params.id) });
         }
-        return res.redirect((0, flash_1.appendNotice)(buildPageUrl(page, q), "Category berhasil dihapus.", "success"));
+        return res.redirect((0, flash_1.appendNotice)(buildPageUrl(page, q), "Tag berhasil dihapus.", "success"));
     }
 };

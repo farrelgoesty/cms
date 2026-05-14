@@ -899,9 +899,9 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   };
 
-  const setFeaturedImagePreview = (field, url) => {
-    const preview = field.querySelector("[data-featured-image-preview]");
-    const placeholder = field.querySelector("[data-featured-image-placeholder]");
+  const setImageFieldPreview = (field, url, previewSelector, placeholderSelector) => {
+    const preview = field.querySelector(previewSelector);
+    const placeholder = field.querySelector(placeholderSelector);
 
     if (preview instanceof HTMLImageElement) {
       if (url) {
@@ -916,6 +916,110 @@ document.addEventListener("DOMContentLoaded", () => {
     if (placeholder instanceof HTMLElement) {
       placeholder.classList.toggle("hidden", Boolean(url));
     }
+  };
+
+  const setupImageField = ({
+    fieldSelector,
+    fileInputSelector,
+    inputSelector,
+    pickSelector,
+    removeSelector,
+    dropzoneSelector,
+    previewSelector,
+    placeholderSelector,
+    successMessage
+  }) => {
+    document.querySelectorAll(fieldSelector).forEach((field) => {
+      const input = field.querySelector(inputSelector);
+      const fileInput = field.querySelector(fileInputSelector);
+      const pickButton = field.querySelector(pickSelector);
+      const removeButton = field.querySelector(removeSelector);
+      const dropzone = field.querySelector(dropzoneSelector);
+
+      if (!(input instanceof HTMLInputElement)) {
+        return;
+      }
+
+      const updatePreview = (value) => {
+        setImageFieldPreview(field, value, previewSelector, placeholderSelector);
+      };
+
+      const triggerUpload = async (file) => {
+        if (!(file instanceof File)) {
+          return;
+        }
+
+        validateMediaFile(file, { imageOnly: true });
+
+        const localPreviewUrl = URL.createObjectURL(file);
+        updatePreview(localPreviewUrl);
+
+        try {
+          const result = await uploadMediaFile(file, { imageOnly: true });
+          input.value = result.location;
+          updatePreview(result.preview || result.location);
+          window.CMS_NOTIFY?.success(successMessage);
+        } catch (error) {
+          input.value = input.value || "";
+          updatePreview(input.value.trim());
+          const message = error instanceof Error ? error.message : "Image upload failed";
+          window.CMS_NOTIFY?.error(message);
+        } finally {
+          URL.revokeObjectURL(localPreviewUrl);
+        }
+      };
+
+      updatePreview(input.value.trim());
+      input.addEventListener("input", () => updatePreview(input.value.trim()));
+
+      pickButton?.addEventListener("click", () => {
+        if (fileInput instanceof HTMLInputElement) {
+          fileInput.click();
+        }
+      });
+
+      removeButton?.addEventListener("click", () => {
+        input.value = "";
+        if (fileInput instanceof HTMLInputElement) {
+          fileInput.value = "";
+        }
+        updatePreview("");
+      });
+
+      const handleFileSelection = async (file) => {
+        await triggerUpload(file);
+        if (fileInput instanceof HTMLInputElement) {
+          fileInput.value = "";
+        }
+      };
+
+      fileInput?.addEventListener("change", async () => {
+        const file = fileInput.files?.[0];
+        if (!file) {
+          return;
+        }
+
+        await handleFileSelection(file);
+      });
+
+      const stopDrag = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      };
+
+      dropzone?.addEventListener("dragenter", stopDrag);
+      dropzone?.addEventListener("dragover", stopDrag);
+      dropzone?.addEventListener("dragleave", stopDrag);
+      dropzone?.addEventListener("drop", async (event) => {
+        stopDrag(event);
+        const file = event.dataTransfer?.files?.[0];
+        if (!file) {
+          return;
+        }
+
+        await handleFileSelection(file);
+      });
+    });
   };
 
   document.querySelectorAll("[data-media-upload-form]").forEach((form) => {
@@ -939,91 +1043,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  document.querySelectorAll("[data-featured-image-field]").forEach((field) => {
-    const input = field.querySelector("[data-featured-image-input]");
-    const fileInput = field.querySelector("[data-featured-image-file]");
-    const pickButton = field.querySelector("[data-featured-image-pick]");
-    const removeButton = field.querySelector("[data-featured-image-remove]");
-    const dropzone = field.querySelector("[data-featured-image-dropzone]");
+  setupImageField({
+    fieldSelector: "[data-featured-image-field]",
+    inputSelector: "[data-featured-image-input]",
+    fileInputSelector: "[data-featured-image-file]",
+    pickSelector: "[data-featured-image-pick]",
+    removeSelector: "[data-featured-image-remove]",
+    dropzoneSelector: "[data-featured-image-dropzone]",
+    previewSelector: "[data-featured-image-preview]",
+    placeholderSelector: "[data-featured-image-placeholder]",
+    successMessage: "Featured image berhasil diupload."
+  });
 
-    if (!(input instanceof HTMLInputElement)) {
-      return;
-    }
-
-    const triggerUpload = async (file) => {
-      if (!(file instanceof File)) {
-        return;
-      }
-
-      validateMediaFile(file, { imageOnly: true });
-
-      const localPreviewUrl = URL.createObjectURL(file);
-      setFeaturedImagePreview(field, localPreviewUrl);
-
-      try {
-        const result = await uploadMediaFile(file, { imageOnly: true });
-        input.value = result.location;
-        setFeaturedImagePreview(field, result.preview || result.location);
-        window.CMS_NOTIFY?.success("Featured image berhasil diupload.");
-      } catch (error) {
-        input.value = input.value || "";
-        setFeaturedImagePreview(field, input.value.trim());
-        const message = error instanceof Error ? error.message : "Image upload failed";
-        window.CMS_NOTIFY?.error(message);
-      } finally {
-        URL.revokeObjectURL(localPreviewUrl);
-      }
-    };
-
-    setFeaturedImagePreview(field, input.value.trim());
-
-    pickButton?.addEventListener("click", () => {
-      if (fileInput instanceof HTMLInputElement) {
-        fileInput.click();
-      }
-    });
-
-    removeButton?.addEventListener("click", () => {
-      input.value = "";
-      if (fileInput instanceof HTMLInputElement) {
-        fileInput.value = "";
-      }
-      setFeaturedImagePreview(field, "");
-    });
-
-    const handleFileSelection = async (file) => {
-      await triggerUpload(file);
-      if (fileInput instanceof HTMLInputElement) {
-        fileInput.value = "";
-      }
-    };
-
-    fileInput?.addEventListener("change", async () => {
-      const file = fileInput.files?.[0];
-      if (!file) {
-        return;
-      }
-
-      await handleFileSelection(file);
-    });
-
-    const stopDrag = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-
-    dropzone?.addEventListener("dragenter", stopDrag);
-    dropzone?.addEventListener("dragover", stopDrag);
-    dropzone?.addEventListener("dragleave", stopDrag);
-    dropzone?.addEventListener("drop", async (event) => {
-      stopDrag(event);
-      const file = event.dataTransfer?.files?.[0];
-      if (!file) {
-        return;
-      }
-
-      await handleFileSelection(file);
-    });
+  setupImageField({
+    fieldSelector: "[data-banner-image-field]",
+    inputSelector: "[data-banner-image-input]",
+    fileInputSelector: "[data-banner-image-file]",
+    pickSelector: "[data-banner-image-pick]",
+    removeSelector: "[data-banner-image-remove]",
+    dropzoneSelector: "[data-banner-image-dropzone]",
+    previewSelector: "[data-banner-image-preview]",
+    placeholderSelector: "[data-banner-image-placeholder]",
+    successMessage: "Banner berhasil diupload."
   });
 
   document.querySelectorAll("[data-content-media-field]").forEach((field) => {
@@ -1252,48 +1293,107 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.querySelector("[data-taxonomy-modal]");
     const modalTitle = modal?.querySelector("[data-taxonomy-modal-title]");
     const modalDescription = modal?.querySelector("[data-taxonomy-modal-description]");
+    const modalHelp = modal?.querySelector("[data-taxonomy-modal-help]");
     const modalKind = modal?.querySelector("[data-taxonomy-modal-kind]");
+    const modalMode = modal?.querySelector("[data-taxonomy-modal-mode]");
+    const modalId = modal?.querySelector("[data-taxonomy-modal-id]");
     const modalInput = modal?.querySelector("[data-taxonomy-modal-input]");
     const modalForm = modal?.querySelector("[data-taxonomy-modal-form]");
     const modalSubmit = modal?.querySelector("[data-taxonomy-modal-submit]");
+    const modalErrors = modal?.querySelector("[data-taxonomy-modal-errors]");
     const closeButtons = modal ? modal.querySelectorAll("[data-taxonomy-modal-close]") : [];
 
     if (!(modal instanceof HTMLElement) || !(modalForm instanceof HTMLFormElement)) {
       return;
     }
 
-    const state = {
-      kind: "category"
+    const isAdminPage = Boolean(document.querySelector("[data-taxonomy-admin]"));
+    const isPostForm = Boolean(document.querySelector("[data-post-form-root]"));
+    const taxonomyRoutes = {
+      category: "/admin/categories",
+      tag: "/admin/tags"
     };
 
-    const setModalCopy = (kind) => {
-      const label = kind === "tag" ? "Tag" : "Kategori";
+    const getLabel = (kind) => (kind === "tag" ? "Tag" : "Kategori");
+    const getRoute = (kind) => taxonomyRoutes[kind] || taxonomyRoutes.category;
+    const getCountSelector = (kind) => `[data-taxonomy-count="${escapeSelectorValue(kind)}"]`;
+
+    const clearModalErrors = () => {
+      if (modalErrors instanceof HTMLElement) {
+        modalErrors.innerHTML = "";
+        modalErrors.classList.add("hidden");
+      }
+    };
+
+    const setModalErrors = (messages = []) => {
+      if (!(modalErrors instanceof HTMLElement)) {
+        return;
+      }
+
+      const items = Array.isArray(messages) ? messages.map((item) => String(item || "").trim()).filter(Boolean) : [];
+      if (!items.length) {
+        modalErrors.innerHTML = "";
+        modalErrors.classList.add("hidden");
+        return;
+      }
+
+      modalErrors.classList.remove("hidden");
+      modalErrors.innerHTML = items.map((item) => `<div>${escapeHtml(item)}</div>`).join("");
+    };
+
+    const setModalCopy = (kind, mode = "create") => {
+      const label = getLabel(kind);
+      const isEdit = mode === "edit";
       if (modalTitle instanceof HTMLElement) {
-        modalTitle.textContent = `Tambah ${label}`;
+        modalTitle.textContent = isEdit ? `Edit ${label}` : `Tambah ${label}`;
       }
       if (modalDescription instanceof HTMLElement) {
-        modalDescription.textContent = `Masukkan ${label.toLowerCase()} baru lalu simpan untuk menambahkannya ke daftar.`;
+        modalDescription.textContent = isEdit
+          ? `Ubah nama ${label.toLowerCase()} lalu simpan perubahan.`
+          : `Masukkan ${label.toLowerCase()} baru lalu simpan untuk menambahkannya ke daftar.`;
       }
       if (modalSubmit instanceof HTMLButtonElement) {
-        modalSubmit.textContent = `Simpan ${label}`;
+        modalSubmit.textContent = isEdit ? "Simpan Perubahan" : `Simpan ${label}`;
       }
       if (modalKind instanceof HTMLInputElement) {
         modalKind.value = kind;
       }
-      state.kind = kind;
+      if (modalMode instanceof HTMLInputElement) {
+        modalMode.value = mode;
+      }
+      if (modalId instanceof HTMLInputElement) {
+        modalId.value = "";
+      }
+      if (modalHelp instanceof HTMLElement) {
+        modalHelp.textContent = isEdit
+          ? `Nama akan diperbarui langsung di daftar setelah disimpan.`
+          : `Pisahkan beberapa item dengan koma saat menambah data baru.`;
+      }
     };
 
     const close = () => {
       modal.classList.add("hidden");
       modal.setAttribute("aria-hidden", "true");
       document.body.classList.remove("overflow-hidden");
+      clearModalErrors();
     };
 
-    const open = (kind = "category") => {
-      setModalCopy(kind === "tag" ? "tag" : "category");
+    const open = (kind = "category", mode = "create", item = {}) => {
+      const safeKind = kind === "tag" ? "tag" : "category";
+      const safeMode = mode === "edit" ? "edit" : "create";
+      setModalCopy(safeKind, safeMode);
       if (modalInput instanceof HTMLTextAreaElement) {
-        modalInput.value = "";
+        modalInput.value = String(item.name || "");
+        modalInput.placeholder = safeMode === "edit"
+          ? `Ubah nama ${getLabel(safeKind).toLowerCase()}`
+          : safeKind === "tag"
+            ? "Productivity, Design, News"
+            : "Technology, Lifestyle, Travel";
       }
+      if (modalId instanceof HTMLInputElement) {
+        modalId.value = String(item.id || "");
+      }
+      clearModalErrors();
       modal.classList.remove("hidden");
       modal.setAttribute("aria-hidden", "false");
       document.body.classList.add("overflow-hidden");
@@ -1304,7 +1404,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 50);
     };
 
-    const appendTaxonomyItem = (kind, item) => {
+    const appendPostFormTaxonomyItem = (kind, item) => {
       const list = document.querySelector(`[data-taxonomy-list="${escapeSelectorValue(kind)}"]`);
       const emptyState = document.querySelector(`[data-taxonomy-empty="${escapeSelectorValue(kind)}"]`);
       const count = document.querySelector(`[data-taxonomy-count="${escapeSelectorValue(kind)}"]`);
@@ -1330,20 +1430,50 @@ document.addEventListener("DOMContentLoaded", () => {
         emptyState.remove();
       }
 
-      const label = document.createElement("label");
-      label.className = "flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800";
-      label.innerHTML = `
-        <input
-          type="checkbox"
-          name="${checkboxName}"
-          value="${escapeHtml(id)}"
-          class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
-          checked
-        />
-        <span>${escapeHtml(name)}</span>
+      const card = document.createElement("div");
+      card.className = "taxonomy-item group flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800";
+      card.dataset.taxonomyItem = "true";
+      card.dataset.taxonomyKind = kind;
+      card.dataset.taxonomyId = id;
+      card.dataset.taxonomyName = name;
+      card.innerHTML = `
+        <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            name="${checkboxName}"
+            value="${escapeHtml(id)}"
+            class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
+            checked
+          />
+          <span class="truncate font-medium text-slate-900 dark:text-slate-900" data-taxonomy-item-name>${escapeHtml(name)}</span>
+        </label>
+        <div class="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+            data-taxonomy-edit
+            data-taxonomy-kind="${escapeHtml(kind)}"
+            data-taxonomy-id="${escapeHtml(id)}"
+            data-taxonomy-name="${escapeHtml(name)}"
+            title="Edit"
+          >
+            <i class="fas fa-pen-to-square text-xs"></i>
+          </button>
+          <button
+            type="button"
+            class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 shadow-sm ring-1 ring-red-100 transition hover:bg-red-100"
+            data-taxonomy-delete
+            data-taxonomy-kind="${escapeHtml(kind)}"
+            data-taxonomy-id="${escapeHtml(id)}"
+            data-taxonomy-name="${escapeHtml(name)}"
+            title="Hapus"
+          >
+            <i class="fas fa-trash text-xs"></i>
+          </button>
+        </div>
       `;
 
-      list.appendChild(label);
+      list.appendChild(card);
 
       if (count instanceof HTMLElement) {
         const currentCount = Number.parseInt(count.textContent || "0", 10);
@@ -1351,11 +1481,198 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    document.querySelectorAll("[data-taxonomy-modal-open]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const kind = button.getAttribute("data-taxonomy-modal-open") || "category";
-        open(kind);
+    const removePostFormTaxonomyItem = (kind, id) => {
+      const selector = `[data-taxonomy-item][data-taxonomy-kind="${escapeSelectorValue(kind)}"][data-taxonomy-id="${escapeSelectorValue(id)}"]`;
+      const item = document.querySelector(selector);
+      if (item instanceof HTMLElement) {
+        item.remove();
+      }
+
+      const list = document.querySelector(`[data-taxonomy-list="${escapeSelectorValue(kind)}"]`);
+      const emptyState = document.querySelector(`[data-taxonomy-empty="${escapeSelectorValue(kind)}"]`);
+      const count = document.querySelector(getCountSelector(kind));
+
+      if (list instanceof HTMLElement && !list.querySelector("[data-taxonomy-item]") && emptyState instanceof HTMLElement) {
+        emptyState.classList.remove("hidden");
+        if (!emptyState.parentElement) {
+          list.appendChild(emptyState);
+        }
+      }
+
+      if (count instanceof HTMLElement) {
+        const currentCount = Number.parseInt(count.textContent || "0", 10);
+        count.textContent = String(Math.max(0, Number.isFinite(currentCount) ? currentCount - 1 : 0));
+      }
+    };
+
+    const updatePostFormTaxonomyItem = (kind, item) => {
+      const selector = `[data-taxonomy-item][data-taxonomy-kind="${escapeSelectorValue(kind)}"][data-taxonomy-id="${escapeSelectorValue(item.id)}"]`;
+      const node = document.querySelector(selector);
+      if (!(node instanceof HTMLElement)) {
+        return;
+      }
+
+      node.dataset.taxonomyName = item.name;
+      const nameNode = node.querySelector("[data-taxonomy-item-name]");
+      if (nameNode instanceof HTMLElement) {
+        nameNode.textContent = item.name;
+      }
+
+      const editButton = node.querySelector("[data-taxonomy-edit]");
+      if (editButton instanceof HTMLElement) {
+        editButton.setAttribute("data-taxonomy-name", item.name);
+      }
+
+      const deleteButton = node.querySelector("[data-taxonomy-delete]");
+      if (deleteButton instanceof HTMLElement) {
+        deleteButton.setAttribute("data-taxonomy-name", item.name);
+      }
+    };
+
+    const performRequest = async ({ kind, method, id = "", name = "" }) => {
+      const route = getRoute(kind);
+      const url = id ? `${route}/${encodeURIComponent(id)}` : route;
+      const response = await fetch(url, {
+        method,
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "x-csrf-token": csrfToken
+        },
+        body: method === "DELETE" ? undefined : JSON.stringify({ name })
       });
+
+      const rawText = await response.text();
+      let payload = null;
+      try {
+        payload = rawText ? JSON.parse(rawText) : null;
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok) {
+        const errors = payload?.errors ? Object.values(payload.errors).flat() : [];
+        const message = String(payload?.error || rawText || "Gagal menyimpan taxonomy").trim();
+        const error = new Error(message || "Gagal menyimpan taxonomy");
+        error.details = Array.isArray(errors) ? errors : [];
+        throw error;
+      }
+
+      return payload;
+    };
+
+    const submitCreate = async (kind, text) => {
+      const names = Array.from(new Set(String(text || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)));
+
+      if (!names.length) {
+        throw new Error(`Masukkan nama ${getLabel(kind).toLowerCase()} terlebih dahulu.`);
+      }
+
+      const items = [];
+      for (const name of names) {
+        const result = await performRequest({ kind, method: "POST", name });
+        if (result?.item) {
+          items.push(result.item);
+        }
+      }
+      return items;
+    };
+
+    const submitEdit = async (kind, id, text) => {
+      const name = String(text || "").trim();
+      if (!name) {
+        throw new Error(`Nama ${getLabel(kind).toLowerCase()} tidak boleh kosong.`);
+      }
+
+      const result = await performRequest({ kind, method: "PUT", id, name });
+      return result?.item || null;
+    };
+
+    const submitDelete = async (kind, id) => {
+      return performRequest({ kind, method: "DELETE", id });
+    };
+
+    const refreshAfterAdminMutation = (kind, message) => {
+      window.CMS_NOTIFY?.queue(message, "success");
+      window.location.reload();
+    };
+
+    const handleModalOpen = (button) => {
+      const kind = button.getAttribute("data-taxonomy-modal-open") || "category";
+      open(kind, "create", {});
+    };
+
+    const handleEditClick = (button) => {
+      const kind = button.getAttribute("data-taxonomy-kind") || "category";
+      const id = button.getAttribute("data-taxonomy-id") || "";
+      const name = button.getAttribute("data-taxonomy-name") || "";
+      open(kind, "edit", { id, name });
+    };
+
+    const handleDeleteClick = async (button) => {
+      const kind = button.getAttribute("data-taxonomy-kind") || "category";
+      const id = button.getAttribute("data-taxonomy-id") || "";
+      const name = button.getAttribute("data-taxonomy-name") || getLabel(kind);
+      const label = getLabel(kind).toLowerCase();
+      const confirm = await fireSwal({
+        title: "Konfirmasi penghapusan",
+        text: `Apakah Anda yakin untuk menghapus ${label} "${name}"?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: `Ya, hapus ${getLabel(kind)}`,
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#64748b"
+      });
+
+      if (!confirm.isConfirmed) {
+        return;
+      }
+
+      try {
+        const result = await submitDelete(kind, id);
+        close();
+
+        if (isPostForm) {
+          removePostFormTaxonomyItem(kind, id);
+          window.CMS_NOTIFY?.success(`${getLabel(kind)} berhasil dihapus.`);
+          return;
+        }
+
+        refreshAfterAdminMutation(kind, `${getLabel(kind)} berhasil dihapus.`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : `Gagal menghapus ${label}.`;
+        window.CMS_NOTIFY?.error(message);
+      }
+    };
+
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const openButton = target.closest("[data-taxonomy-modal-open]");
+      if (openButton instanceof HTMLElement) {
+        handleModalOpen(openButton);
+        return;
+      }
+
+      const editButton = target.closest("[data-taxonomy-edit]");
+      if (editButton instanceof HTMLElement) {
+        handleEditClick(editButton);
+        return;
+      }
+
+      const deleteButton = target.closest("[data-taxonomy-delete]");
+      if (deleteButton instanceof HTMLElement) {
+        void handleDeleteClick(deleteButton);
+        return;
+      }
     });
 
     closeButtons.forEach((button) => {
@@ -1380,23 +1697,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modalForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      clearModalErrors();
 
-      const kind = state.kind === "tag" ? "tag" : "category";
+      const kind = modalKind instanceof HTMLInputElement ? (modalKind.value === "tag" ? "tag" : "category") : "category";
+      const mode = modalMode instanceof HTMLInputElement ? (modalMode.value === "edit" ? "edit" : "create") : "create";
+      const id = modalId instanceof HTMLInputElement ? modalId.value.trim() : "";
       const text = modalInput instanceof HTMLTextAreaElement ? modalInput.value : "";
-      const names = Array.from(
-        new Set(
-          text
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean)
-        )
-      );
-
-      if (!names.length) {
-        window.CMS_NOTIFY?.warning(`Masukkan nama ${kind === "category" ? "category" : "tag"} terlebih dahulu.`);
-        modalInput?.focus();
-        return;
-      }
 
       if (modalSubmit instanceof HTMLButtonElement) {
         modalSubmit.disabled = true;
@@ -1404,42 +1710,42 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const response = await fetch("/admin/posts/taxonomies", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-csrf-token": csrfToken
-          },
-          credentials: "same-origin",
-          body: JSON.stringify({ kind, names })
-        });
+        if (mode === "edit") {
+          const item = await submitEdit(kind, id, text);
+          close();
 
-        if (!response.ok) {
-          const raw = await response.text();
-          let message = raw || "Gagal menyimpan taxonomy";
-          try {
-            const parsed = JSON.parse(raw);
-            message = parsed.error || message;
-          } catch {}
-          throw new Error(message);
+          if (isPostForm && item) {
+            updatePostFormTaxonomyItem(kind, item);
+            window.CMS_NOTIFY?.success(`${getLabel(kind)} berhasil diperbarui.`);
+            return;
+          }
+
+          refreshAfterAdminMutation(kind, `${getLabel(kind)} berhasil diperbarui.`);
+          return;
         }
 
-        const result = await response.json();
-        const items = Array.isArray(result?.items) ? result.items : [];
-        if (!items.length) {
-          throw new Error("Tidak ada item yang disimpan.");
-        }
-
-        items.forEach((item) => appendTaxonomyItem(kind, item));
+        const items = await submitCreate(kind, text);
         close();
-        window.CMS_NOTIFY?.success(`${kind === "category" ? "Kategori" : "Tag"} berhasil ditambahkan.`);
+
+        if (isPostForm) {
+          items.forEach((item) => appendPostFormTaxonomyItem(kind, item));
+          window.CMS_NOTIFY?.success(`${getLabel(kind)} berhasil ditambahkan.`);
+          return;
+        }
+
+        refreshAfterAdminMutation(kind, `${getLabel(kind)} berhasil ditambahkan.`);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Gagal menyimpan taxonomy";
+        const details = Array.isArray(error?.details) ? error.details : [];
+        if (details.length) {
+          setModalErrors(details);
+        }
+        const message = error instanceof Error ? error.message : `Gagal menyimpan ${getLabel(kind).toLowerCase()}.`;
         window.CMS_NOTIFY?.error(message);
       } finally {
         if (modalSubmit instanceof HTMLButtonElement) {
           modalSubmit.disabled = false;
-          modalSubmit.textContent = `Simpan ${kind === "tag" ? "Tag" : "Kategori"}`;
+          const currentMode = modalMode instanceof HTMLInputElement && modalMode.value === "edit" ? "edit" : "create";
+          modalSubmit.textContent = currentMode === "edit" ? "Simpan Perubahan" : `Simpan ${getLabel(kind)}`;
         }
       }
     });
@@ -1638,6 +1944,316 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setupFaqBuilder();
 
+  const setupBannerBuilder = () => {
+    document.querySelectorAll("[data-banner-builder]").forEach((builder) => {
+      const store = builder.querySelector("[data-banner-store]");
+      const list = builder.querySelector("[data-banner-list]");
+      const template = builder.querySelector("[data-banner-template]");
+      const addButtons = Array.from(builder.querySelectorAll("[data-banner-add]"));
+
+      if (!(store instanceof HTMLTextAreaElement) || !(list instanceof HTMLElement) || !(template instanceof HTMLTemplateElement)) {
+        return;
+      }
+
+      const maxItems = 10;
+      const emptyStateClass = "rounded-2xl border border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-5 text-sm text-slate-500";
+
+      const createBannerItem = (item = {}) => {
+        const fragment = template.content.cloneNode(true);
+        const element = fragment.firstElementChild;
+        if (!(element instanceof HTMLElement)) {
+          return null;
+        }
+
+        element.dataset.bannerItemId = `banner-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+        const imageInput = element.querySelector("[data-banner-image-input]");
+        const urlInput = element.querySelector("[data-banner-url-input]");
+        const positionInput = element.querySelector("[data-banner-position-input]");
+
+        if (imageInput instanceof HTMLInputElement) {
+          imageInput.value = typeof item.image === "string" ? item.image : "";
+        }
+
+        if (urlInput instanceof HTMLInputElement) {
+          urlInput.value = typeof item.url === "string" ? item.url : "";
+        }
+
+        if (positionInput instanceof HTMLSelectElement) {
+          positionInput.value = item.position === "LEFT" || item.position === "RIGHT" ? item.position : "TOP";
+        }
+
+        setImageFieldPreview(element, imageInput instanceof HTMLInputElement ? imageInput.value.trim() : "", "[data-banner-preview]", "[data-banner-placeholder]");
+        return element;
+      };
+
+      const parseStoredItems = () => {
+        try {
+          const raw = store.value.trim();
+          if (!raw) {
+            return [];
+          }
+
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) {
+            return [];
+          }
+
+          return parsed
+            .map((item) => {
+              if (!item || typeof item !== "object") {
+                return null;
+              }
+
+              const image = typeof item.image === "string" ? item.image.trim() : "";
+              if (!image) {
+                return null;
+              }
+
+              const url = typeof item.url === "string" ? item.url.trim() : "";
+              const position = item.position === "LEFT" || item.position === "RIGHT" ? item.position : "TOP";
+              return {
+                image,
+                ...(url ? { url } : {}),
+                position
+              };
+            })
+            .filter(Boolean);
+        } catch {
+          return [];
+        }
+      };
+
+      const updateEmptyState = () => {
+        const hasItems = Boolean(list.querySelector("[data-banner-item]"));
+        if (!hasItems) {
+          list.innerHTML = `<div class="${emptyStateClass}" data-banner-empty>Belum ada banner. Klik "Tambah banner" untuk membuat banner pertama.</div>`;
+        } else {
+          list.querySelector("[data-banner-empty]")?.remove();
+        }
+      };
+
+      const renumber = () => {
+        Array.from(list.querySelectorAll("[data-banner-item]")).forEach((item, index) => {
+          const title = item.querySelector("[data-banner-item-title]");
+          if (title instanceof HTMLElement) {
+            title.textContent = `Banner ${index + 1}`;
+          }
+        });
+      };
+
+      const serialize = () => {
+        const items = Array.from(list.querySelectorAll("[data-banner-item]"))
+          .map((item) => {
+            if (!(item instanceof HTMLElement)) {
+              return null;
+            }
+
+            const imageInput = item.querySelector("[data-banner-image-input]");
+            const urlInput = item.querySelector("[data-banner-url-input]");
+            const positionInput = item.querySelector("[data-banner-position-input]");
+            const image = imageInput instanceof HTMLInputElement ? imageInput.value.trim() : "";
+            const url = urlInput instanceof HTMLInputElement ? urlInput.value.trim() : "";
+            const position = positionInput instanceof HTMLSelectElement && (positionInput.value === "LEFT" || positionInput.value === "RIGHT") ? positionInput.value : "TOP";
+
+            if (!image) {
+              return null;
+            }
+
+            return {
+              image,
+              ...(url ? { url } : {}),
+              position
+            };
+          })
+          .filter(Boolean);
+
+        store.value = JSON.stringify(items);
+        addButtons.forEach((button) => {
+          if (button instanceof HTMLButtonElement) {
+            button.disabled = items.length >= maxItems;
+          }
+        });
+
+        updateEmptyState();
+        renumber();
+      };
+
+      const addItem = (item = {}) => {
+        const count = list.querySelectorAll("[data-banner-item]").length;
+        if (count >= maxItems) {
+          window.CMS_NOTIFY?.warning(`Maksimal ${maxItems} banner per post.`);
+          return;
+        }
+
+        list.querySelector("[data-banner-empty]")?.remove();
+        const element = createBannerItem(item);
+        if (!(element instanceof HTMLElement)) {
+          return;
+        }
+
+        list.appendChild(element);
+        serialize();
+      };
+
+      const handleBannerPreview = (item) => {
+        if (!(item instanceof HTMLElement)) {
+          return;
+        }
+
+        const imageInput = item.querySelector("[data-banner-image-input]");
+        const image = imageInput instanceof HTMLInputElement ? imageInput.value.trim() : "";
+        setImageFieldPreview(item, image, "[data-banner-preview]", "[data-banner-placeholder]");
+      };
+
+      const initialItems = parseStoredItems();
+      list.innerHTML = "";
+      if (initialItems.length) {
+        initialItems.forEach((item) => addItem(item));
+      } else {
+        updateEmptyState();
+      }
+
+      serialize();
+
+      list.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+
+        const removeButton = target.closest("[data-banner-remove]");
+        if (removeButton instanceof HTMLElement) {
+          const item = removeButton.closest("[data-banner-item]");
+          item?.remove();
+          serialize();
+          return;
+        }
+
+        const mediaButton = target.closest("[data-banner-media-picker-open]");
+        if (mediaButton instanceof HTMLElement) {
+          const item = mediaButton.closest("[data-banner-item]");
+          const itemId = item instanceof HTMLElement ? String(item.dataset.bannerItemId || "") : "";
+          window.CMS_MEDIA_PICKER?.open("banner-item", itemId);
+        }
+      });
+
+      list.addEventListener("input", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+
+        if (target.matches("[data-banner-image-input], [data-banner-url-input]")) {
+          const item = target.closest("[data-banner-item]");
+          handleBannerPreview(item instanceof HTMLElement ? item : null);
+          serialize();
+        }
+      });
+
+      list.addEventListener("change", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+
+        if (target.matches("[data-banner-position-input]")) {
+          serialize();
+        }
+      });
+
+      const handleBannerFileSelection = async (item, fileInput, file) => {
+        if (!(item instanceof HTMLElement) || !(fileInput instanceof HTMLInputElement) || !(file instanceof File)) {
+          return;
+        }
+
+        let localPreviewUrl = "";
+        try {
+          validateMediaFile(file, { imageOnly: true });
+          localPreviewUrl = URL.createObjectURL(file);
+          setImageFieldPreview(item, localPreviewUrl, "[data-banner-preview]", "[data-banner-placeholder]");
+
+          const result = await uploadMediaFile(file, { imageOnly: true });
+          const imageInput = item.querySelector("[data-banner-image-input]");
+          if (imageInput instanceof HTMLInputElement) {
+            imageInput.value = result.location;
+          }
+          setImageFieldPreview(item, result.preview || result.location, "[data-banner-preview]", "[data-banner-placeholder]");
+          serialize();
+          window.CMS_NOTIFY?.success("Banner berhasil diupload.");
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Image upload failed";
+          window.CMS_NOTIFY?.error(message);
+        } finally {
+          if (localPreviewUrl) {
+            URL.revokeObjectURL(localPreviewUrl);
+          }
+          fileInput.value = "";
+        }
+      };
+
+      list.addEventListener("change", async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement) || !target.matches("[data-banner-file]")) {
+          return;
+        }
+
+        const file = target.files?.[0];
+        const item = target.closest("[data-banner-item]");
+        if (!file || !(item instanceof HTMLElement)) {
+          return;
+        }
+
+        await handleBannerFileSelection(item, target, file);
+      });
+
+      const stopDrag = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      };
+
+      list.addEventListener("dragenter", stopDrag);
+      list.addEventListener("dragover", stopDrag);
+      list.addEventListener("dragleave", stopDrag);
+      list.addEventListener("drop", async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+
+        const dropzone = target.closest("[data-banner-dropzone]");
+        if (!(dropzone instanceof HTMLElement)) {
+          return;
+        }
+
+        stopDrag(event);
+        const file = event.dataTransfer?.files?.[0];
+        if (!file) {
+          return;
+        }
+
+        const fileInput = dropzone.querySelector("[data-banner-file]");
+        const item = dropzone.closest("[data-banner-item]");
+        if (!(fileInput instanceof HTMLInputElement) || !(item instanceof HTMLElement)) {
+          return;
+        }
+
+        await handleBannerFileSelection(item, fileInput, file);
+      });
+
+      addButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          addItem();
+        });
+      });
+
+      updateEmptyState();
+      renumber();
+    });
+  };
+
+  setupBannerBuilder();
+
   const setupMediaPicker = () => {
     const modal = document.querySelector("[data-media-picker-modal]");
     const list = modal?.querySelector("[data-media-picker-list]");
@@ -1661,6 +2277,7 @@ document.addEventListener("DOMContentLoaded", () => {
       query: "",
       type: "all",
       target: "content",
+      bannerItemId: "",
       items: [],
       controller: null
     };
@@ -1677,8 +2294,21 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.classList.remove("overflow-hidden");
     };
 
-    const open = (target = "content") => {
+    const setPickedImageField = (fieldSelector, inputSelector, previewSelector, placeholderSelector, value, previewUrl = value) => {
+      const field = document.querySelector(fieldSelector);
+      const input = field?.querySelector(inputSelector);
+      if (input instanceof HTMLInputElement) {
+        input.value = value;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+      if (field instanceof HTMLElement) {
+        setImageFieldPreview(field, previewUrl, previewSelector, placeholderSelector);
+      }
+    };
+
+    const open = (target = "content", bannerItemId = "") => {
       state.target = target;
+      state.bannerItemId = bannerItemId;
       state.page = 1;
       state.items = [];
       modal.classList.remove("hidden");
@@ -1692,22 +2322,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const insertMedia = (item) => {
       if (state.target === "thumbnail" && item.kind === "image") {
-        const field = document.querySelector("[data-featured-image-field]");
-        const input = field?.querySelector("[data-featured-image-input]");
-        if (input instanceof HTMLInputElement) {
-          input.value = item.filePath;
-          const preview = field?.querySelector("[data-featured-image-preview]");
-          if (preview instanceof HTMLImageElement) {
-            preview.src = item.previewUrl || item.filePath;
-            preview.classList.remove("hidden");
-          }
-          const placeholder = field?.querySelector("[data-featured-image-placeholder]");
-          if (placeholder instanceof HTMLElement) {
-            placeholder.classList.add("hidden");
-          }
-        }
+        setPickedImageField("[data-featured-image-field]", "[data-featured-image-input]", "[data-featured-image-preview]", "[data-featured-image-placeholder]", item.filePath, item.previewUrl || item.filePath);
         window.CMS_NOTIFY?.success("Media dipilih sebagai featured image.");
         close();
+        return;
+      }
+
+      if (state.target === "banner" && item.kind === "image") {
+        setPickedImageField("[data-banner-image-field]", "[data-banner-image-input]", "[data-banner-image-preview]", "[data-banner-image-placeholder]", item.filePath, item.previewUrl || item.filePath);
+        window.CMS_NOTIFY?.success("Media dipilih sebagai banner image.");
+        close();
+        return;
+      }
+
+      if (state.target === "banner-item" && item.kind === "image" && state.bannerItemId) {
+        const fieldSelector = `[data-banner-item-id="${escapeSelectorValue(state.bannerItemId)}"]`;
+        setPickedImageField(fieldSelector, "[data-banner-image-input]", "[data-banner-preview]", "[data-banner-placeholder]", item.filePath, item.previewUrl || item.filePath);
+        window.CMS_NOTIFY?.success("Media dipilih sebagai banner image.");
+        close();
+        return;
+      }
+
+      if (state.target === "banner-item") {
+        window.CMS_NOTIFY?.warning("Banner harus berupa gambar.");
+        return;
+      }
+
+      if (state.target === "banner") {
+        window.CMS_NOTIFY?.warning("Banner harus berupa gambar.");
         return;
       }
 
@@ -1719,6 +2361,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const renderCard = (item) => {
       const previewUrl = item.previewUrl || item.filePath;
       const kind = item.kind || "other";
+      const isBannerTarget = state.target === "banner" && kind === "image";
       const badgeClass = kind === "image"
         ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-100"
         : kind === "video"
@@ -1736,8 +2379,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const mediaId = escapeHtml(item.id);
       const thumbnailAction = state.target === "thumbnail" && kind === "image"
         ? `<button type="button" class="wp-btn wp-btn-primary flex-1" data-media-action="thumbnail" data-media-id="${mediaId}">Set as Thumbnail</button>`
-        : "";
-      const linkedImageAction = kind === "image"
+        : isBannerTarget
+          ? `<button type="button" class="wp-btn wp-btn-primary flex-1" data-media-action="banner" data-media-id="${mediaId}">Set as Banner</button>`
+          : "";
+      const insertActionLabel = state.target === "banner" ? "Set as Banner" : "Insert into Content";
+      const insertAction = state.target === "banner"
+        ? ""
+        : `<button type="button" class="wp-btn wp-btn-primary flex-1" data-media-action="insert" data-media-id="${mediaId}">${insertActionLabel}</button>`;
+      const linkedImageAction = kind === "image" && state.target !== "banner"
         ? `<button type="button" class="wp-btn wp-btn-secondary flex-1" data-media-action="insert-linked" data-media-id="${mediaId}">Link Gambar</button>`
         : "";
 
@@ -1766,7 +2415,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <p class="text-xs text-slate-500">${escapeHtml(dateLabel)}</p>
             <p class="truncate text-xs text-slate-500">${escapeHtml(item.filePath)}</p>
             <div class="flex flex-wrap gap-2">
-              <button type="button" class="wp-btn wp-btn-primary flex-1" data-media-action="insert" data-media-id="${mediaId}">Insert into Content</button>
+              ${insertAction}
               ${linkedImageAction}
               ${thumbnailAction}
               <a class="wp-btn wp-btn-secondary" href="${escapeHtml(item.filePath)}" target="_blank" rel="noopener noreferrer">Open</a>
@@ -1904,6 +2553,11 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
+        if (button.getAttribute("data-media-action") === "banner" && media.kind === "image") {
+          insertMedia(media);
+          return;
+        }
+
         if (button.getAttribute("data-media-action") === "insert-linked" && media.kind === "image") {
           const linkUrl = promptForImageLinkUrl(media.fileName || "gambar");
           if (!linkUrl) {
@@ -1973,7 +2627,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-media-picker-open]").forEach((button) => {
     button.addEventListener("click", () => {
       const target = button.getAttribute("data-media-picker-open") || "content";
-      window.CMS_MEDIA_PICKER?.open(target);
+      const bannerItemId = button.getAttribute("data-banner-item-id") || "";
+      window.CMS_MEDIA_PICKER?.open(target, bannerItemId);
     });
   });
 

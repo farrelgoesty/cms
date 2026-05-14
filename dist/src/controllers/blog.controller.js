@@ -10,6 +10,7 @@ const meta_1 = require("../utils/meta");
 const comment_validation_1 = require("../validations/comment.validation");
 const youtube_1 = require("../utils/youtube");
 const media_1 = require("../utils/media");
+const banner_1 = require("../utils/banner");
 function pageQuery(value) {
     const parsed = Number(value);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
@@ -127,7 +128,18 @@ exports.blogController = {
                 ? post.featuredImage
                 : (0, meta_1.buildCanonicalUrl)(baseUrl, post.featuredImage)
             : undefined;
-        const shareImageUrl = featuredImageUrl || (0, meta_1.buildCanonicalUrl)(baseUrl, "/uploads/2026/05/10dbd22d-5644-4174-ab95-d055485e73be.webp");
+        const bannerItems = (0, banner_1.resolveBannerItems)(post.bannerItems, {
+            bannerImage: post.bannerImage,
+            bannerUrl: post.bannerUrl,
+            bannerPosition: post.bannerPosition
+        }).map((item) => ({
+            ...item,
+            imageUrl: /^https?:\/\//i.test(item.image) ? item.image : (0, meta_1.buildCanonicalUrl)(baseUrl, item.image)
+        }));
+        const bannerImageUrl = bannerItems[0]?.imageUrl
+            ? bannerItems[0].imageUrl
+            : undefined;
+        const shareImageUrl = featuredImageUrl || bannerImageUrl || (0, meta_1.buildCanonicalUrl)(baseUrl, "/uploads/2026/05/10dbd22d-5644-4174-ab95-d055485e73be.webp");
         const youtubePreview = (0, youtube_1.buildYoutubePreview)(post.youtubeUrl);
         const metaDescription = post.seoDescription ?? post.excerpt ?? post.subheadline ?? post.title;
         res.render("blog/post", {
@@ -149,6 +161,8 @@ exports.blogController = {
             publishedAt,
             commentStatus,
             featuredImageUrl,
+            bannerImageUrl,
+            bannerItems,
             youtubePreview,
             defaultYoutubeLabel: (0, media_1.getYoutubeDefaultLabel)()
         });

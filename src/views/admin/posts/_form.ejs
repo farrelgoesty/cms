@@ -19,6 +19,20 @@
 <% const youtubePositionValue = safeValues.youtubePosition || editingPost?.youtubePosition || 'TOP'; %>
 <% const previewYoutube = typeof youtubePreview !== "undefined" ? youtubePreview : null; %>
 <% const featuredImageValue = editingPost?.featuredImage || safeValues.featuredImage || ''; %>
+<% const initialBannerItems = Array.isArray(safeValues.bannerItems)
+  ? safeValues.bannerItems
+  : typeof safeValues.bannerItems === "string" && safeValues.bannerItems.trim()
+    ? safeValues.bannerItems
+    : Array.isArray(editingPost?.bannerItems)
+      ? editingPost.bannerItems
+      : editingPost?.bannerImage
+        ? [{
+            image: editingPost.bannerImage,
+            url: editingPost.bannerUrl || '',
+            position: editingPost.bannerPosition || 'TOP'
+          }]
+        : []; %>
+<% const initialBannerItemsJson = typeof initialBannerItems === "string" ? initialBannerItems : JSON.stringify(initialBannerItems); %>
 <% const youtubeLabelPresetOptions = typeof youtubeLabelOptions !== "undefined" && Array.isArray(youtubeLabelOptions) ? youtubeLabelOptions : []; %>
 
 <div class="space-y-6" data-post-form-root>
@@ -85,16 +99,50 @@
               </div>
             <% } %>
             <% categories.forEach((category) => { %>
-              <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800">
-                <input
-                  type="checkbox"
-                  name="categoryIds"
-                  value="<%= category.id %>"
-                  class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
-                  <%= selectedCategoryIds.includes(category.id) ? 'checked' : '' %>
-                />
-                <span><%= category.name %></span>
-              </label>
+              <div
+                class="taxonomy-item flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800"
+                data-taxonomy-item="true"
+                data-taxonomy-kind="category"
+                data-taxonomy-id="<%= category.id %>"
+                data-taxonomy-name="<%= category.name %>"
+                data-taxonomy-slug="<%= category.slug %>"
+              >
+                <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    name="categoryIds"
+                    value="<%= category.id %>"
+                    class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
+                    <%= selectedCategoryIds.includes(category.id) ? 'checked' : '' %>
+                  />
+                  <span class="truncate font-medium text-slate-900 dark:text-slate-900" data-taxonomy-item-name><%= category.name %></span>
+                </label>
+                <div class="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+                    data-taxonomy-edit
+                    data-taxonomy-kind="category"
+                    data-taxonomy-id="<%= category.id %>"
+                    data-taxonomy-name="<%= category.name %>"
+                    data-taxonomy-slug="<%= category.slug %>"
+                    title="Edit"
+                  >
+                    <i class="fas fa-pen-to-square text-xs"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 shadow-sm ring-1 ring-red-100 transition hover:bg-red-100"
+                    data-taxonomy-delete
+                    data-taxonomy-kind="category"
+                    data-taxonomy-id="<%= category.id %>"
+                    data-taxonomy-name="<%= category.name %>"
+                    title="Hapus"
+                  >
+                    <i class="fas fa-trash text-xs"></i>
+                  </button>
+                </div>
+              </div>
             <% }) %>
           </div>
         </div>
@@ -117,16 +165,50 @@
               </div>
             <% } %>
             <% tags.forEach((tag) => { %>
-              <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800">
-                <input
-                  type="checkbox"
-                  name="tagIds"
-                  value="<%= tag.id %>"
-                  class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
-                  <%= selectedTagIds.includes(tag.id) ? 'checked' : '' %>
-                />
-                <span><%= tag.name %></span>
-              </label>
+              <div
+                class="taxonomy-item flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800"
+                data-taxonomy-item="true"
+                data-taxonomy-kind="tag"
+                data-taxonomy-id="<%= tag.id %>"
+                data-taxonomy-name="<%= tag.name %>"
+                data-taxonomy-slug="<%= tag.slug %>"
+              >
+                <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    name="tagIds"
+                    value="<%= tag.id %>"
+                    class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
+                    <%= selectedTagIds.includes(tag.id) ? 'checked' : '' %>
+                  />
+                  <span class="truncate font-medium text-slate-900 dark:text-slate-900" data-taxonomy-item-name><%= tag.name %></span>
+                </label>
+                <div class="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+                    data-taxonomy-edit
+                    data-taxonomy-kind="tag"
+                    data-taxonomy-id="<%= tag.id %>"
+                    data-taxonomy-name="<%= tag.name %>"
+                    data-taxonomy-slug="<%= tag.slug %>"
+                    title="Edit"
+                  >
+                    <i class="fas fa-pen-to-square text-xs"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 shadow-sm ring-1 ring-red-100 transition hover:bg-red-100"
+                    data-taxonomy-delete
+                    data-taxonomy-kind="tag"
+                    data-taxonomy-id="<%= tag.id %>"
+                    data-taxonomy-name="<%= tag.name %>"
+                    title="Hapus"
+                  >
+                    <i class="fas fa-trash text-xs"></i>
+                  </button>
+                </div>
+              </div>
             <% }) %>
           </div>
         </div>
@@ -159,6 +241,60 @@
                 <p class="text-xs text-slate-500">Gunakan media yang sudah di-upload atau pilih dari library. Path disimpan secara langsung dan akan tetap responsif pada frontend artikel.</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="space-y-3 lg:col-span-2" data-banner-builder>
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <label class="label">Banner artikel</label>
+              <p class="text-xs text-slate-500">Tambahkan lebih dari satu banner. Setiap banner bisa diberi gambar, URL tujuan, dan posisi di atas, kiri, atau kanan artikel.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="wp-badge">Max 5 MB</span>
+              <button class="wp-btn wp-btn-primary" type="button" data-banner-add>Tambah banner</button>
+            </div>
+          </div>
+          <textarea class="hidden" name="bannerItems" data-banner-store><%= initialBannerItemsJson %></textarea>
+          <div class="space-y-4" data-banner-list></div>
+          <template data-banner-template>
+            <div class="rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] p-4 shadow-soft" data-banner-item="true">
+              <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div class="text-xs font-semibold uppercase tracking-[0.24em] text-brand-600" data-banner-item-title>Banner 1</div>
+                  <p class="mt-1 text-sm text-slate-500">Banner ini bisa diposisikan di atas, kiri, atau kanan artikel.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button class="wp-btn wp-btn-secondary text-xs" type="button" data-banner-media-picker-open>Media Library</button>
+                  <button class="wp-btn wp-btn-ghost text-xs" type="button" data-banner-remove>Hapus</button>
+                </div>
+              </div>
+              <div class="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
+                <label class="flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-4 text-center transition-all duration-200 hover:border-brand-500 hover:bg-brand-50/50 dark:hover:bg-brand-500/10" data-banner-dropzone>
+                  <input class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" data-banner-file />
+                  <img class="hidden max-h-52 w-full rounded-2xl object-cover" data-banner-preview src="" alt="Banner image preview" />
+                  <div class="space-y-1 text-xs text-slate-500" data-banner-placeholder>
+                    <p>Drag & drop gambar di sini, atau klik untuk upload.</p>
+                    <p>Preview tampil sebelum disimpan. Support JPG, PNG, WEBP, GIF, SVG aman. Maksimal 5 MB.</p>
+                  </div>
+                </label>
+                <div class="space-y-3">
+                  <label class="label">URL gambar banner</label>
+                  <input class="input" data-banner-image-input placeholder="/media/..." value="" />
+                  <p class="text-xs text-slate-500">Gunakan media yang sudah di-upload atau pilih dari library.</p>
+                  <label class="label">URL tujuan banner</label>
+                  <input class="input" data-banner-url-input placeholder="https://contoh.com/promo" value="" />
+                  <p class="text-xs text-slate-500">Jika diisi, banner akan dapat diklik menuju URL ini.</p>
+                  <label class="label">Posisi banner</label>
+                  <select class="input" data-banner-position-input>
+                    <option value="TOP">Atas artikel</option>
+                    <option value="LEFT">Kiri artikel</option>
+                    <option value="RIGHT">Kanan artikel</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </template>
           </div>
         </div>
 
@@ -363,10 +499,13 @@
       </div>
       <form class="space-y-4 p-5" data-taxonomy-modal-form>
         <input type="hidden" name="kind" data-taxonomy-modal-kind value="category" />
+        <input type="hidden" name="mode" data-taxonomy-modal-mode value="create" />
+        <input type="hidden" name="id" data-taxonomy-modal-id value="" />
         <div>
           <label class="label" for="taxonomyModalNames">Nama</label>
           <textarea class="input min-h-28" id="taxonomyModalNames" rows="4" placeholder="Technology, Lifestyle, Travel" data-taxonomy-modal-input></textarea>
-          <p class="mt-2 text-xs text-slate-500">Pisahkan beberapa item dengan koma. Item baru akan dibuat langsung saat tombol simpan ditekan.</p>
+          <p class="mt-2 text-xs text-slate-500" data-taxonomy-modal-help>Pisahkan beberapa item dengan koma. Item baru akan dibuat langsung saat tombol simpan ditekan.</p>
+          <div class="mt-3 hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" data-taxonomy-modal-errors></div>
         </div>
         <div class="flex flex-wrap justify-end gap-3">
           <button type="button" class="wp-btn wp-btn-secondary" data-taxonomy-modal-close>Batal</button>

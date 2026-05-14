@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { categoryService } from "../../services/category.service";
-import { categorySchema } from "../../validations/category.validation";
+import { tagService } from "../../services/tag.service";
+import { tagSchema } from "../../validations/tag.validation";
 import { buildPagination } from "../../utils/pagination";
 import { appendNotice } from "../../utils/flash";
 
@@ -28,27 +28,27 @@ function buildPageUrl(page: number, q = "") {
   }
 
   const search = params.toString();
-  return search ? `/admin/categories?${search}` : "/admin/categories";
+  return search ? `/admin/tags?${search}` : "/admin/tags";
 }
 
 function renderPage(res: Response, options: Record<string, unknown>) {
   return res.render("admin/taxonomies/index", {
     layout: "layouts/admin",
-    title: "Categories",
-    taxonomyKind: "category",
-    taxonomyTitle: "Categories",
-    taxonomySingular: "Kategori",
-    taxonomyCreateLabel: "Tambah Kategori",
-    taxonomyIcon: "fa-folder-tree",
+    title: "Tags",
+    taxonomyKind: "tag",
+    taxonomyTitle: "Tags",
+    taxonomySingular: "Tag",
+    taxonomyCreateLabel: "Tambah Tag",
+    taxonomyIcon: "fa-tags",
     ...options
   });
 }
 
 function renderListData(page: number, q: string) {
-  return categoryService.listAdmin(page, 9, q).then(({ items, total }) => {
+  return tagService.listAdmin(page, 9, q).then(({ items, total }) => {
     const pagination = buildPagination(page, total, 9);
     return {
-      categories: items,
+      tags: items,
       total,
       pagination: {
         ...pagination,
@@ -63,23 +63,24 @@ function renderListData(page: number, q: string) {
   });
 }
 
-export const categoryController = {
+export const tagController = {
   async index(req: Request, res: Response) {
     const page = pageQuery(req.query.page);
     const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
     const data = await renderListData(page, q);
+
     renderPage(res, {
       ...data,
       page,
       q,
       errors: undefined,
       values: {},
-      editingCategory: null
+      editingTag: null
     });
   },
 
   async store(req: Request, res: Response) {
-    const parsed = categorySchema.safeParse(req.body);
+    const parsed = tagSchema.safeParse(req.body);
     const page = pageQuery(req.query.page);
     const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
     const data = await renderListData(page, q);
@@ -87,7 +88,7 @@ export const categoryController = {
     if (!parsed.success) {
       if (wantsJson(req)) {
         return res.status(422).json({
-          error: "Periksa kembali isian category.",
+          error: "Periksa kembali isian tag.",
           errors: parsed.error.flatten().fieldErrors
         });
       }
@@ -96,30 +97,30 @@ export const categoryController = {
         ...data,
         page,
         q,
-        notice: "Periksa kembali isian category.",
+        notice: "Periksa kembali isian tag.",
         noticeType: "warning",
-        editingCategory: null,
+        editingTag: null,
         errors: parsed.error.flatten().fieldErrors,
         values: req.body
       });
     }
 
-    const item = await categoryService.create(parsed.data.name);
+    const item = await tagService.create(parsed.data.name);
 
     if (wantsJson(req)) {
       return res.json({ item });
     }
 
-    return res.redirect(appendNotice(buildPageUrl(page, q), "Category berhasil ditambahkan.", "success"));
+    return res.redirect(appendNotice(buildPageUrl(page, q), "Tag berhasil ditambahkan.", "success"));
   },
 
   async editForm(req: Request, res: Response) {
     const page = pageQuery(req.query.page);
     const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
     const data = await renderListData(page, q);
-    const editingCategory = await categoryService.findById(routeParam(req.params.id));
+    const editingTag = await tagService.findById(routeParam(req.params.id));
 
-    if (!editingCategory) {
+    if (!editingTag) {
       return res.status(404).render("errors/404", { layout: "layouts/blog", title: "Not found" });
     }
 
@@ -127,23 +128,23 @@ export const categoryController = {
       ...data,
       page,
       q,
-      editingCategory,
+      editingTag,
       errors: undefined,
       values: {}
     });
   },
 
   async update(req: Request, res: Response) {
-    const parsed = categorySchema.safeParse(req.body);
+    const parsed = tagSchema.safeParse(req.body);
     const page = pageQuery(req.query.page);
     const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
     const data = await renderListData(page, q);
-    const editingCategory = await categoryService.findById(routeParam(req.params.id));
+    const editingTag = await tagService.findById(routeParam(req.params.id));
 
     if (!parsed.success) {
       if (wantsJson(req)) {
         return res.status(422).json({
-          error: "Periksa kembali isian category.",
+          error: "Periksa kembali isian tag.",
           errors: parsed.error.flatten().fieldErrors
         });
       }
@@ -152,33 +153,32 @@ export const categoryController = {
         ...data,
         page,
         q,
-        notice: "Periksa kembali isian category.",
+        notice: "Periksa kembali isian tag.",
         noticeType: "warning",
-        editingCategory,
+        editingTag,
         errors: parsed.error.flatten().fieldErrors,
         values: req.body
       });
     }
 
-    const item = await categoryService.update(routeParam(req.params.id), parsed.data.name);
+    const item = await tagService.update(routeParam(req.params.id), parsed.data.name);
 
     if (wantsJson(req)) {
       return res.json({ item });
     }
 
-    return res.redirect(appendNotice(buildPageUrl(page, q), "Category berhasil diperbarui.", "success"));
+    return res.redirect(appendNotice(buildPageUrl(page, q), "Tag berhasil diperbarui.", "success"));
   },
 
   async destroy(req: Request, res: Response) {
-    const id = routeParam(req.params.id);
-    await categoryService.delete(id);
+    await tagService.delete(routeParam(req.params.id));
     const page = pageQuery(req.query.page);
     const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
 
     if (wantsJson(req)) {
-      return res.json({ success: true, id });
+      return res.json({ success: true, id: routeParam(req.params.id) });
     }
 
-    return res.redirect(appendNotice(buildPageUrl(page, q), "Category berhasil dihapus.", "success"));
+    return res.redirect(appendNotice(buildPageUrl(page, q), "Tag berhasil dihapus.", "success"));
   }
 };

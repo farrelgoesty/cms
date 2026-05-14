@@ -6,6 +6,12 @@ const faqItemSchema = z.object({
   answer: z.string().min(10).max(1500)
 });
 
+const bannerItemSchema = z.object({
+  image: z.string().trim().min(1).max(2048),
+  url: z.string().trim().max(2048).optional().or(z.literal("")),
+  position: z.enum(["TOP", "LEFT", "RIGHT"]).default("TOP")
+});
+
 function parseJsonValue(value: unknown) {
   if (typeof value !== "string") {
     return value;
@@ -33,6 +39,10 @@ export const postSchema = z.object({
   youtubePosition: z.enum(["TOP", "MIDDLE", "BOTTOM"]).default("TOP"),
   content: z.string().min(20),
   featuredImage: z.string().trim().optional().or(z.literal("")),
+  bannerImage: z.string().trim().optional().or(z.literal("")),
+  bannerUrl: z.string().trim().max(2048).optional().or(z.literal("")),
+  bannerPosition: z.enum(["TOP", "LEFT", "RIGHT"]).default("TOP"),
+  bannerItems: z.preprocess(parseJsonValue, z.array(bannerItemSchema).max(10)),
   seoTitle: z.string().trim().optional().or(z.literal("")),
   seoDescription: z.string().trim().optional().or(z.literal("")),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),

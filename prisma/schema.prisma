@@ -24,6 +24,12 @@ enum YoutubePosition {
   BOTTOM
 }
 
+enum BannerPosition {
+  TOP
+  LEFT
+  RIGHT
+}
+
 enum CommentStatus {
   PENDING
   APPROVED
@@ -67,6 +73,10 @@ model Post {
   youtubePosition YoutubePosition @default(TOP)
   content         String          @db.LongText
   featuredImage   String?         @db.Text
+  bannerImage     String?         @db.Text
+  bannerUrl       String?         @db.Text
+  bannerPosition  BannerPosition  @default(TOP)
+  bannerItems     Json?
   status          PostStatus      @default(DRAFT)
   seoTitle        String?         @db.VarChar(255)
   seoDescription  String?         @db.LongText

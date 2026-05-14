@@ -11,6 +11,7 @@ const sanitize_1 = require("../utils/sanitize");
 const prisma_1 = require("../config/prisma");
 const youtube_1 = require("../utils/youtube");
 const media_1 = require("../utils/media");
+const banner_1 = require("../utils/banner");
 function parseNames(value) {
     return (value ?? "")
         .split(",")
@@ -99,6 +100,15 @@ exports.postService = {
         const slug = await ensureUniqueSlug((0, slugify_1.makeSlug)(input.slug || input.title));
         const content = (0, sanitize_1.sanitizeRichText)(input.content);
         const excerpt = input.excerpt ? (0, sanitize_1.sanitizeRichText)(input.excerpt) : undefined;
+        const bannerItems = (0, banner_1.resolveBannerItems)(input.bannerItems, {
+            bannerImage: input.bannerImage,
+            bannerUrl: input.bannerUrl,
+            bannerPosition: input.bannerPosition
+        });
+        const primaryBanner = bannerItems[0];
+        const bannerImage = primaryBanner ? primaryBanner.image : null;
+        const bannerUrl = primaryBanner ? primaryBanner.url ?? null : null;
+        const bannerPosition = primaryBanner ? primaryBanner.position : "TOP";
         const postData = {
             title: input.title,
             slug,
@@ -114,6 +124,10 @@ exports.postService = {
             ...(input.subheadline ? { subheadline: (0, sanitize_1.sanitizePlainText)(input.subheadline) } : {}),
             ...(excerpt ? { excerpt } : {}),
             ...(input.featuredImage ? { featuredImage: input.featuredImage } : {}),
+            bannerImage,
+            bannerUrl,
+            bannerPosition,
+            bannerItems,
             ...(input.seoTitle ? { seoTitle: input.seoTitle } : {}),
             ...(input.seoDescription ? { seoDescription: input.seoDescription } : {})
         };
@@ -131,6 +145,15 @@ exports.postService = {
         const slug = await ensureUniqueSlug((0, slugify_1.makeSlug)(input.slug || input.title), id);
         const content = (0, sanitize_1.sanitizeRichText)(input.content);
         const excerpt = input.excerpt ? (0, sanitize_1.sanitizeRichText)(input.excerpt) : undefined;
+        const bannerItems = (0, banner_1.resolveBannerItems)(input.bannerItems, {
+            bannerImage: input.bannerImage,
+            bannerUrl: input.bannerUrl,
+            bannerPosition: input.bannerPosition
+        });
+        const primaryBanner = bannerItems[0];
+        const bannerImage = primaryBanner ? primaryBanner.image : null;
+        const bannerUrl = primaryBanner ? primaryBanner.url ?? null : null;
+        const bannerPosition = primaryBanner ? primaryBanner.position : "TOP";
         const postData = {
             title: input.title,
             slug,
@@ -145,6 +168,10 @@ exports.postService = {
             ...(input.subheadline ? { subheadline: (0, sanitize_1.sanitizePlainText)(input.subheadline) } : {}),
             ...(excerpt ? { excerpt } : {}),
             ...(input.featuredImage ? { featuredImage: input.featuredImage } : {}),
+            bannerImage,
+            bannerUrl,
+            bannerPosition,
+            bannerItems,
             ...(input.seoTitle ? { seoTitle: input.seoTitle } : {}),
             ...(input.seoDescription ? { seoDescription: input.seoDescription } : {})
         };

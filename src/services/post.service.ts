@@ -8,6 +8,13 @@ import { sanitizePlainText, sanitizeRichText } from "../utils/sanitize";
 import { prisma } from "../config/prisma";
 import { normalizeYoutubeUrl } from "../utils/youtube";
 import { getMediaTypeFilterOptions, getYoutubeLabelOptions, getYoutubeDefaultLabel } from "../utils/media";
+import { resolveBannerItems, type BannerPositionValue } from "../utils/banner";
+
+type PostBannerItemInput = {
+  image: string;
+  position: BannerPositionValue;
+  url?: string | undefined;
+};
 
 function parseNames(value: string | undefined) {
   return (value ?? "")
@@ -116,6 +123,10 @@ export const postService = {
     faqItems: { question: string; answer: string }[];
     content: string;
     featuredImage?: string;
+    bannerImage?: string;
+    bannerUrl?: string;
+    bannerPosition: BannerPositionValue;
+    bannerItems?: PostBannerItemInput[];
     seoTitle?: string;
     seoDescription?: string;
     status: PostStatus;
@@ -132,7 +143,16 @@ export const postService = {
     const slug = await ensureUniqueSlug(makeSlug(input.slug || input.title));
     const content = sanitizeRichText(input.content);
     const excerpt = input.excerpt ? sanitizeRichText(input.excerpt) : undefined;
-    const postData = {
+    const bannerItems = resolveBannerItems(input.bannerItems, {
+      bannerImage: input.bannerImage,
+      bannerUrl: input.bannerUrl,
+      bannerPosition: input.bannerPosition
+    });
+    const primaryBanner = bannerItems[0];
+    const bannerImage = primaryBanner ? primaryBanner.image : null;
+    const bannerUrl = primaryBanner ? primaryBanner.url ?? null : null;
+    const bannerPosition: BannerPositionValue = primaryBanner ? primaryBanner.position : "TOP";
+    const postData: Parameters<typeof postRepository.create>[0] = {
       title: input.title,
       slug,
       content,
@@ -147,6 +167,10 @@ export const postService = {
       ...(input.subheadline ? { subheadline: sanitizePlainText(input.subheadline) } : {}),
       ...(excerpt ? { excerpt } : {}),
       ...(input.featuredImage ? { featuredImage: input.featuredImage } : {}),
+      bannerImage,
+      bannerUrl,
+      bannerPosition,
+      bannerItems,
       ...(input.seoTitle ? { seoTitle: input.seoTitle } : {}),
       ...(input.seoDescription ? { seoDescription: input.seoDescription } : {})
     };
@@ -171,6 +195,10 @@ export const postService = {
       faqItems: { question: string; answer: string }[];
       content: string;
       featuredImage?: string;
+      bannerImage?: string;
+      bannerUrl?: string;
+      bannerPosition: BannerPositionValue;
+      bannerItems?: PostBannerItemInput[];
       seoTitle?: string;
       seoDescription?: string;
       status: PostStatus;
@@ -192,7 +220,16 @@ export const postService = {
     const slug = await ensureUniqueSlug(makeSlug(input.slug || input.title), id);
     const content = sanitizeRichText(input.content);
     const excerpt = input.excerpt ? sanitizeRichText(input.excerpt) : undefined;
-    const postData = {
+    const bannerItems = resolveBannerItems(input.bannerItems, {
+      bannerImage: input.bannerImage,
+      bannerUrl: input.bannerUrl,
+      bannerPosition: input.bannerPosition
+    });
+    const primaryBanner = bannerItems[0];
+    const bannerImage = primaryBanner ? primaryBanner.image : null;
+    const bannerUrl = primaryBanner ? primaryBanner.url ?? null : null;
+    const bannerPosition: BannerPositionValue = primaryBanner ? primaryBanner.position : "TOP";
+    const postData: Parameters<typeof postRepository.update>[1] = {
       title: input.title,
       slug,
       content,
@@ -206,6 +243,10 @@ export const postService = {
       ...(input.subheadline ? { subheadline: sanitizePlainText(input.subheadline) } : {}),
       ...(excerpt ? { excerpt } : {}),
       ...(input.featuredImage ? { featuredImage: input.featuredImage } : {}),
+      bannerImage,
+      bannerUrl,
+      bannerPosition,
+      bannerItems,
       ...(input.seoTitle ? { seoTitle: input.seoTitle } : {}),
       ...(input.seoDescription ? { seoDescription: input.seoDescription } : {})
     };

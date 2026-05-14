@@ -308,6 +308,149 @@ body {
   color: var(--wp-primary-strong);
 }
 
+.blog-nav-shell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1.85rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.94) 100%);
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.09),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.dark .blog-nav-shell {
+  border-color: rgba(148, 163, 184, 0.16);
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(17, 24, 39, 0.94) 100%);
+  box-shadow:
+    0 14px 34px rgba(2, 6, 23, 0.38),
+    0 1px 0 rgba(255, 255, 255, 0.03) inset;
+}
+
+.blog-brand-card,
+.blog-search-card {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 1.4rem;
+  background: rgba(255, 255, 255, 0.99);
+  box-shadow:
+    0 8px 20px rgba(15, 23, 42, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.82) inset;
+}
+
+.blog-brand-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.95rem 1rem;
+  color: var(--wp-text);
+  transition:
+    transform 160ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.blog-brand-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(34, 113, 177, 0.22);
+  box-shadow:
+    0 12px 26px rgba(15, 23, 42, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.82) inset;
+}
+
+@media (min-width: 1024px) {
+  .blog-brand-card {
+    width: auto;
+  }
+}
+
+.blog-brand-mark {
+  flex-shrink: 0;
+  border-radius: 0.95rem;
+}
+
+.blog-brand-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.blog-brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--wp-text);
+}
+
+.blog-search-card {
+  padding: 0.9rem;
+}
+
+.blog-search-input {
+  border-radius: 1.08rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 252, 254, 0.96) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.blog-search-input:focus {
+  background: #ffffff;
+  box-shadow:
+    0 0 0 3px var(--wp-primary-soft),
+    0 10px 22px rgba(15, 23, 42, 0.08);
+}
+
+.dark .blog-brand-card,
+.dark .blog-search-card {
+  border-color: rgba(148, 163, 184, 0.14);
+  background: rgba(15, 23, 42, 0.98);
+  box-shadow:
+    0 10px 22px rgba(2, 6, 23, 0.32),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.dark .blog-brand-card:hover {
+  border-color: rgba(114, 174, 230, 0.22);
+  box-shadow:
+    0 14px 28px rgba(2, 6, 23, 0.36),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.dark .blog-brand-name {
+  color: #f8fafc;
+}
+
+.dark .blog-search-input {
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(15, 23, 42, 0.96) 100%);
+}
+
+.dark .blog-search-input:focus {
+  background: rgba(17, 24, 39, 1);
+}
+
+@media (max-width: 640px) {
+  .blog-nav-shell {
+    border-radius: 1.45rem;
+  }
+
+  .blog-brand-card,
+  .blog-search-card {
+    border-radius: 1.2rem;
+  }
+
+  .blog-brand-card {
+    padding: 0.9rem 0.95rem;
+  }
+
+  .blog-search-card {
+    padding: 0.8rem;
+  }
+}
+
 .wp-badge {
   display: inline-flex;
   align-items: center;

@@ -7,6 +7,11 @@ const faqItemSchema = zod_1.z.object({
     question: zod_1.z.string().min(3).max(180),
     answer: zod_1.z.string().min(10).max(1500)
 });
+const bannerItemSchema = zod_1.z.object({
+    image: zod_1.z.string().trim().min(1).max(2048),
+    url: zod_1.z.string().trim().max(2048).optional().or(zod_1.z.literal("")),
+    position: zod_1.z.enum(["TOP", "LEFT", "RIGHT"]).default("TOP")
+});
 function parseJsonValue(value) {
     if (typeof value !== "string") {
         return value;
@@ -32,6 +37,10 @@ exports.postSchema = zod_1.z.object({
     youtubePosition: zod_1.z.enum(["TOP", "MIDDLE", "BOTTOM"]).default("TOP"),
     content: zod_1.z.string().min(20),
     featuredImage: zod_1.z.string().trim().optional().or(zod_1.z.literal("")),
+    bannerImage: zod_1.z.string().trim().optional().or(zod_1.z.literal("")),
+    bannerUrl: zod_1.z.string().trim().max(2048).optional().or(zod_1.z.literal("")),
+    bannerPosition: zod_1.z.enum(["TOP", "LEFT", "RIGHT"]).default("TOP"),
+    bannerItems: zod_1.z.preprocess(parseJsonValue, zod_1.z.array(bannerItemSchema).max(10)),
     seoTitle: zod_1.z.string().trim().optional().or(zod_1.z.literal("")),
     seoDescription: zod_1.z.string().trim().optional().or(zod_1.z.literal("")),
     status: zod_1.z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),

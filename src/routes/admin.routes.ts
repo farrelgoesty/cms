@@ -6,6 +6,7 @@ import { postController } from "../controllers/admin/post.controller";
 import { mediaController } from "../controllers/admin/media.controller";
 import { commentController } from "../controllers/admin/comment.controller";
 import { categoryController } from "../controllers/admin/category.controller";
+import { tagController } from "../controllers/admin/tag.controller";
 import { profileController } from "../controllers/admin/profile.controller";
 import { uploadAvatar } from "../middlewares/upload.middleware";
 import { csrfProtection } from "../middlewares/csrf.middleware";
@@ -41,6 +42,12 @@ router.post("/categories", requireAuth, categoryController.store);
 router.get("/categories/:id/edit", requireAuth, categoryController.editForm);
 router.put("/categories/:id", requireAuth, categoryController.update);
 router.delete("/categories/:id", requireAuth, categoryController.destroy);
+
+router.get("/tags", requireAuth, tagController.index);
+router.post("/tags", requireAuth, tagController.store);
+router.get("/tags/:id/edit", requireAuth, tagController.editForm);
+router.put("/tags/:id", requireAuth, tagController.update);
+router.delete("/tags/:id", requireAuth, tagController.destroy);
 
 router.get("/media", requireAuth, mediaController.list);
 router.get("/media/api", requireAuth, mediaController.api);

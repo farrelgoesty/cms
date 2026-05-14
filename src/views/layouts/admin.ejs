@@ -226,6 +226,18 @@
               </div>
             </a>
 
+            <!-- Tags -->
+            <a class="wp-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/tags') ? 'wp-nav-link-active bg-brand-50/80 ring-1 ring-brand-200' : 'hover:bg-slate-50' %>"
+              href="/admin/tags">
+              <div
+                class="nav-icon-wrapper flex h-10 w-10 items-center justify-center rounded-xl bg-white text-cyan-600 shadow-sm ring-1 ring-slate-200 transition-all duration-200">
+                <i class="fas fa-tags text-lg"></i>
+              </div>
+              <div>
+                <span class="font-semibold text-slate-700">Tags</span>
+              </div>
+            </a>
+
             <!-- Media Library -->
             <a class="wp-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/media') ? 'wp-nav-link-active bg-brand-50/80 ring-1 ring-brand-200' : 'hover:bg-slate-50' %>"
               href="/admin/media">
@@ -350,6 +362,10 @@
               <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/categories') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
                 href="/admin/categories">
                 <i class="fas fa-folder-tree mr-1"></i> Categories
+              </a>
+              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/tags') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
+                href="/admin/tags">
+                <i class="fas fa-tags mr-1"></i> Tags
               </a>
               <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/media') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
                 href="/admin/media">

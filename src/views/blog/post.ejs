@@ -36,7 +36,7 @@
     "@id": meta && meta.canonical ? meta.canonical : `/posts/${post.slug}`
   }
 }; %>
-<% if (featuredImageUrl) { articleSchema.image = [featuredImageUrl]; } %>
+<% if (featuredImageUrl || bannerImageUrl) { articleSchema.image = [featuredImageUrl || bannerImageUrl]; } %>
 <% if (safeFaqItems.length) { %>
   <% const faqSchema = {
     "@context": "https://schema.org",
@@ -57,6 +57,41 @@
 <% const youtubePosition = post.youtubePosition || "TOP"; %>
 <% const youtubeLabel = post.youtubeLabel || (typeof defaultYoutubeLabel !== "undefined" ? defaultYoutubeLabel : "Video Pendukung"); %>
 <% const youtubeEnabled = youtubePreview && youtubePreview.embedUrl; %>
+<% const bannerItemsValue = typeof bannerItems !== "undefined" && Array.isArray(bannerItems) ? bannerItems : []; %>
+<% const legacyBannerItems = post.bannerImage
+  ? [{
+      image: post.bannerImage,
+      url: post.bannerUrl || "",
+      position: post.bannerPosition || "TOP"
+    }]
+  : []; %>
+<% const normalizedBannerItems = (bannerItemsValue.length ? bannerItemsValue : legacyBannerItems)
+  .map((item) => {
+    if (!item || typeof item !== "object") {
+      return null;
+    }
+
+    const image = typeof item.image === "string" ? item.image.trim() : "";
+    if (!image) {
+      return null;
+    }
+
+    const imageUrl = typeof item.imageUrl === "string" ? item.imageUrl.trim() : "";
+    const url = typeof item.url === "string" ? item.url.trim() : "";
+    const position = item.position === "LEFT" || item.position === "RIGHT" ? item.position : "TOP";
+
+    return {
+      image,
+      ...(imageUrl ? { imageUrl } : {}),
+      ...(url ? { url } : {}),
+      position
+    };
+  })
+  .filter(Boolean); %>
+<% const topBannerItems = normalizedBannerItems.filter((item) => item.position === "TOP"); %>
+<% const leftBannerItems = normalizedBannerItems.filter((item) => item.position === "LEFT"); %>
+<% const rightBannerItems = normalizedBannerItems.filter((item) => item.position === "RIGHT"); %>
+<% const bannerEnabled = Boolean(normalizedBannerItems.length); %>
 <% function renderYoutubeBlock() { %>
   <% if (youtubeEnabled) { %>
     <section class="wp-panel overflow-hidden">
@@ -74,6 +109,29 @@
           allowfullscreen
         ></iframe>
       </div>
+    </section>
+  <% } %>
+<% } %>
+
+<% function renderBannerBlock(item, index) { %>
+  <% if (item) { %>
+    <% const bannerExternal = /^https?:\/\//i.test(item.url || ""); %>
+    <% const bannerPlacement = item.position === "LEFT" || item.position === "RIGHT" ? "side" : "top"; %>
+    <% const bannerAspectClass = bannerPlacement === "top" ? "aspect-[21/9]" : "aspect-[4/5]"; %>
+    <section class="wp-panel overflow-hidden">
+      <% if (item.url) { %>
+        <a href="<%= item.url %>" <%= bannerExternal ? 'target="_blank" rel="noopener noreferrer"' : '' %> class="block bg-[color:var(--wp-surface-2)]">
+          <div class="<%= bannerAspectClass %> w-full overflow-hidden">
+            <img src="<%= item.imageUrl || item.image %>" alt="<%= post.title %> banner <%= index + 1 %>" class="h-full w-full object-cover" loading="lazy" />
+          </div>
+        </a>
+      <% } else { %>
+        <div class="block bg-[color:var(--wp-surface-2)]">
+          <div class="<%= bannerAspectClass %> w-full overflow-hidden">
+            <img src="<%= item.imageUrl || item.image %>" alt="<%= post.title %> banner <%= index + 1 %>" class="h-full w-full object-cover" loading="lazy" />
+          </div>
+        </div>
+      <% } %>
     </section>
   <% } %>
 <% } %>
@@ -124,30 +182,73 @@
     <% } %>
   </header>
 
+  <% if (topBannerItems.length) { %>
+    <div class="space-y-4">
+      <% topBannerItems.forEach((item, index) => { %>
+        <% renderBannerBlock(item, index); %>
+      <% }) %>
+    </div>
+  <% } %>
+
   <% if (youtubePosition === "TOP") { %>
     <div><% renderYoutubeBlock(); %></div>
   <% } %>
 
   <div class="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.7fr)] lg:items-start">
     <div class="space-y-8">
-      <section class="wp-panel p-8">
-        <div class="article-content prose prose-lg max-w-none">
-          <%- post.content %>
-        </div>
+      <% if (leftBannerItems.length || rightBannerItems.length) { %>
+        <div class="grid gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.16fr)_minmax(0,0.92fr)] lg:items-start">
+          <div class="space-y-4">
+            <% leftBannerItems.forEach((item, index) => { %>
+              <% renderBannerBlock(item, index); %>
+            <% }) %>
+          </div>
 
-        <% if (youtubePosition === "MIDDLE") { %>
-          <div class="mt-8"><% renderYoutubeBlock(); %></div>
-        <% } %>
+          <section class="wp-panel p-8">
+            <div class="article-content prose prose-lg max-w-none">
+              <%- post.content %>
+            </div>
 
-        <div class="mt-8 flex flex-wrap gap-2">
-          <% post.postCategories.forEach((item) => { %>
-            <a href="/categories/<%= item.category.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.category.name %></a>
-          <% }) %>
-          <% post.postTags.forEach((item) => { %>
-            <a href="/tags/<%= item.tag.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.tag.name %></a>
-          <% }) %>
+            <% if (youtubePosition === "MIDDLE") { %>
+              <div class="mt-8"><% renderYoutubeBlock(); %></div>
+            <% } %>
+
+            <div class="mt-8 flex flex-wrap gap-2">
+              <% post.postCategories.forEach((item) => { %>
+                <a href="/categories/<%= item.category.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.category.name %></a>
+              <% }) %>
+              <% post.postTags.forEach((item) => { %>
+                <a href="/tags/<%= item.tag.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.tag.name %></a>
+              <% }) %>
+            </div>
+          </section>
+
+          <div class="space-y-4">
+            <% rightBannerItems.forEach((item, index) => { %>
+              <% renderBannerBlock(item, index); %>
+            <% }) %>
+          </div>
         </div>
-      </section>
+      <% } else { %>
+        <section class="wp-panel p-8">
+          <div class="article-content prose prose-lg max-w-none">
+            <%- post.content %>
+          </div>
+
+          <% if (youtubePosition === "MIDDLE") { %>
+            <div class="mt-8"><% renderYoutubeBlock(); %></div>
+          <% } %>
+
+          <div class="mt-8 flex flex-wrap gap-2">
+            <% post.postCategories.forEach((item) => { %>
+              <a href="/categories/<%= item.category.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.category.name %></a>
+            <% }) %>
+            <% post.postTags.forEach((item) => { %>
+              <a href="/tags/<%= item.tag.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.tag.name %></a>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
 
       <% if (safeFaqItems.length) { %>
         <section id="faq" class="wp-panel p-8">

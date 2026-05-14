@@ -168,6 +168,23 @@ export function getYoutubeDefaultLabel() {
   return DEFAULT_YOUTUBE_LABEL;
 }
 
+export function normalizeLinkUrl(value: string | null | undefined) {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  if (/^(https?:\/\/|\/|#|mailto:|tel:)/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  if (/\s/.test(trimmed)) {
+    return "";
+  }
+
+  return `https://${trimmed}`;
+}
+
 export function buildMediaInsertHtml(params: {
   kind: MediaKind;
   filePath: string;
@@ -181,7 +198,7 @@ export function buildMediaInsertHtml(params: {
   const href = params.filePath;
   const previewUrl = params.previewUrl || params.filePath;
   const altText = params.altText?.trim() || params.fileName;
-  const linkUrl = params.linkUrl?.trim() || "";
+  const linkUrl = normalizeLinkUrl(params.linkUrl);
 
   if (params.kind === "image") {
     const imageHtml = `<img src="${previewUrl}" alt="${altText.replace(/"/g, "&quot;")}" loading="lazy" decoding="async" />`;
