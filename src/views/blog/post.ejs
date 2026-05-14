@@ -1,0 +1,346 @@
+<% const safeFaqItems = Array.isArray(faqItems) ? faqItems : []; %>
+<% const publishedDate = publishedAt ? new Date(publishedAt) : new Date(post.createdAt); %>
+<% const modifiedDate = new Date(post.updatedAt); %>
+<% const formattedDate = publishedDate.toLocaleDateString("id-ID", {
+  day: "numeric",
+  month: "long",
+  year: "numeric"
+}); %>
+<% const authorName = post.author?.name || "Editor"; %>
+<% const authorInitials = authorName
+  .split(" ")
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((part) => part.charAt(0))
+  .join("")
+  .toUpperCase() || "E"; %>
+<% const shareUrl = typeof meta !== "undefined" && meta && meta.canonical ? meta.canonical : `/posts/${post.slug}`; %>
+<% const shareTitle = post.seoTitle || post.title; %>
+<% const shareText = post.seoDescription || post.subheadline || post.excerpt || post.title; %>
+<% const shareEncodedUrl = encodeURIComponent(shareUrl); %>
+<% const shareEncodedTitle = encodeURIComponent(shareTitle); %>
+<% const shareEncodedText = encodeURIComponent(shareText); %>
+<% const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: post.title,
+  description: post.seoDescription || post.subheadline || post.excerpt || post.title,
+  datePublished: publishedDate.toISOString(),
+  dateModified: modifiedDate.toISOString(),
+  author: {
+    "@type": "Person",
+    name: authorName
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": meta && meta.canonical ? meta.canonical : `/posts/${post.slug}`
+  }
+}; %>
+<% if (featuredImageUrl) { articleSchema.image = [featuredImageUrl]; } %>
+<% if (safeFaqItems.length) { %>
+  <% const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: safeFaqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer
+      }
+    }))
+  }; %>
+  <script type="application/ld+json"><%- JSON.stringify(faqSchema).replace(/</g, "\\u003c") %></script>
+<% } %>
+<script type="application/ld+json"><%- JSON.stringify(articleSchema).replace(/</g, "\\u003c") %></script>
+
+<% const youtubePosition = post.youtubePosition || "TOP"; %>
+<% const youtubeLabel = post.youtubeLabel || (typeof defaultYoutubeLabel !== "undefined" ? defaultYoutubeLabel : "Video Pendukung"); %>
+<% const youtubeEnabled = youtubePreview && youtubePreview.embedUrl; %>
+<% function renderYoutubeBlock() { %>
+  <% if (youtubeEnabled) { %>
+    <section class="wp-panel overflow-hidden">
+      <div class="border-b border-[color:var(--wp-border)] px-6 py-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600"><%= youtubeLabel %></p>
+      </div>
+      <div class="aspect-video bg-slate-950">
+        <iframe
+          src="<%= youtubePreview.embedUrl %>?rel=0&modestbranding=1&playsinline=1"
+          title="<%= post.title %> video"
+          class="h-full w-full"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </section>
+  <% } %>
+<% } %>
+
+<article class="space-y-8">
+  <header class="wp-panel-strong overflow-hidden">
+    <div class="space-y-6 p-8 lg:p-10">
+      <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.34em] text-brand-600">
+        <span>Artikel</span>
+        <% if (typeof isPreview !== "undefined" && isPreview) { %>
+          <span class="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[0.65rem] text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">Preview</span>
+        <% } %>
+      </div>
+
+      <div class="max-w-4xl">
+        <h1 class="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl"><%= post.title %></h1>
+        <% if (post.subheadline || post.excerpt) { %>
+          <p class="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300"><%= post.subheadline || post.excerpt %></p>
+        <% } %>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-3 rounded-full border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-3 py-2 shadow-sm">
+          <div class="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-semibold text-white">
+            <% if (post.author?.avatar) { %>
+              <img src="<%= post.author.avatar %>" alt="<%= authorName %>" class="h-full w-full object-cover" />
+            <% } else { %>
+              <span><%= authorInitials %></span>
+            <% } %>
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-slate-950 dark:text-white">By <%= authorName %></div>
+            <div class="text-xs text-slate-500 dark:text-slate-400"><%= formattedDate %></div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <span class="rounded-full border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-3 py-2"><%= post.readingTime %> min read</span>
+          <span class="rounded-full border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-3 py-2"><%= post.viewCount %> views</span>
+        </div>
+      </div>
+    </div>
+
+    <% if (post.featuredImage) { %>
+      <div class="border-t border-[color:var(--wp-border)]">
+        <img src="<%= featuredImageUrl || post.featuredImage %>" alt="<%= post.title %>" class="max-h-[32rem] w-full object-cover" loading="eager" />
+      </div>
+    <% } %>
+  </header>
+
+  <% if (youtubePosition === "TOP") { %>
+    <div><% renderYoutubeBlock(); %></div>
+  <% } %>
+
+  <div class="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.7fr)] lg:items-start">
+    <div class="space-y-8">
+      <section class="wp-panel p-8">
+        <div class="article-content prose prose-lg max-w-none">
+          <%- post.content %>
+        </div>
+
+        <% if (youtubePosition === "MIDDLE") { %>
+          <div class="mt-8"><% renderYoutubeBlock(); %></div>
+        <% } %>
+
+        <div class="mt-8 flex flex-wrap gap-2">
+          <% post.postCategories.forEach((item) => { %>
+            <a href="/categories/<%= item.category.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.category.name %></a>
+          <% }) %>
+          <% post.postTags.forEach((item) => { %>
+            <a href="/tags/<%= item.tag.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.tag.name %></a>
+          <% }) %>
+        </div>
+      </section>
+
+      <% if (safeFaqItems.length) { %>
+        <section id="faq" class="wp-panel p-8">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Pertanyaan umum</p>
+              <h2 class="mt-2 text-2xl font-semibold">Pertanyaan yang sering ditanyakan</h2>
+            </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Accordion responsif agar pembaca cepat menemukan jawaban.</p>
+          </div>
+
+          <div class="mt-6 space-y-3">
+            <% safeFaqItems.forEach((item, index) => { %>
+              <details class="group rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-5 transition-all duration-200 hover:shadow-md" <%= index === 0 ? "open" : "" %>>
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-slate-950 dark:text-white">
+                  <span><%= item.question %></span>
+                  <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] text-xl text-brand-600 transition-transform duration-200 group-open:rotate-45">+</span>
+                </summary>
+                <div class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300"><%= item.answer %></div>
+              </details>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <section class="wp-panel p-8">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Artikel terkait</p>
+            <h2 class="mt-2 text-2xl font-semibold">Baca lanjutan</h2>
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Rekomendasi artikel yang masih relevan.</p>
+        </div>
+
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
+          <% if (related.length) { %>
+            <% related.forEach((item) => { %>
+              <a href="/posts/<%= item.slug %>" class="group rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="text-xs font-semibold uppercase tracking-[0.28em] text-brand-600">Artikel terkait</div>
+                <div class="mt-3 text-lg font-semibold leading-snug text-slate-950 transition-colors group-hover:text-brand-600 dark:text-white"><%= item.title %></div>
+                <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                  <span><%= item.readingTime %> min read</span>
+                  <span><%= item.viewCount %> views</span>
+                </div>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <div class="rounded-2xl border border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-5 text-sm text-slate-500 dark:text-slate-400">
+              Belum ada artikel terkait yang cukup relevan.
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <% if (youtubePosition === "BOTTOM") { %>
+        <div><% renderYoutubeBlock(); %></div>
+      <% } %>
+
+      <section id="comments" class="wp-panel p-8 scroll-mt-28">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Komentar</p>
+            <h2 class="mt-2 text-2xl font-semibold">Komentar pembaca</h2>
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Komentar dimoderasi untuk mengurangi spam.</p>
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-5">
+          <h3 class="text-lg font-semibold">Tinggalkan komentar</h3>
+          <% if (commentStatus === "submitted") { %>
+            <div class="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-100">
+              Komentar Anda sudah diterima dan akan tampil setelah disetujui moderator.
+            </div>
+          <% } %>
+          <% if (replyTarget) { %>
+            <div class="mt-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900 dark:border-brand-500/20 dark:bg-brand-500/10 dark:text-brand-100">
+              Membalas <span class="font-semibold"><%= replyTarget.name %></span>
+              <div class="mt-1 text-xs text-brand-700 dark:text-brand-100/80">Komentar ini akan tersimpan sebagai balasan.</div>
+            </div>
+          <% } %>
+
+          <form class="mt-5 space-y-4" method="post" action="/comments">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input type="hidden" name="postId" value="<%= post.id %>" />
+            <input type="hidden" name="parentId" value="<%= replyTo || '' %>" />
+            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+            <div class="grid gap-4 md:grid-cols-2">
+              <div>
+                <label class="label" for="comment-name">Nama</label>
+                <input class="input" id="comment-name" name="name" placeholder="Nama Anda" minlength="2" maxlength="100" required />
+              </div>
+              <div>
+                <label class="label" for="comment-email">Email</label>
+                <input class="input" id="comment-email" name="email" type="email" placeholder="email@contoh.com" maxlength="150" />
+              </div>
+            </div>
+
+            <div>
+              <label class="label" for="comment-content">Komentar</label>
+              <textarea class="input min-h-36" id="comment-content" name="content" placeholder="Tulis komentar Anda..." minlength="3" maxlength="4000" required></textarea>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button class="wp-btn wp-btn-primary" type="submit">Kirim komentar</button>
+              <% if (replyTarget) { %>
+                <a class="wp-btn wp-btn-secondary" href="/posts/<%= post.slug %>#comments">Batal balas</a>
+              <% } %>
+            </div>
+          </form>
+        </div>
+
+        <div class="mt-6 space-y-4">
+          <% if (!commentTree.length) { %>
+            <div class="rounded-2xl border border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-6 text-sm text-slate-500 dark:text-slate-400">
+              Belum ada komentar yang disetujui.
+            </div>
+          <% } %>
+
+          <% function renderComment(comment, depth) { %>
+            <div class="<%= depth > 0 ? 'ml-5 border-l border-[color:var(--wp-border)] pl-5' : '' %>">
+              <article class="comment-card rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div class="text-base font-semibold text-slate-950 dark:text-white"><%= comment.name %></div>
+                    <div class="mt-1 text-xs text-slate-500 dark:text-slate-400"><%= new Date(comment.createdAt).toLocaleString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit"
+                    }) %></div>
+                  </div>
+                  <a href="/posts/<%= post.slug %>?replyTo=<%= comment.id %>#comments" class="wp-btn wp-btn-pill px-3 py-2 text-xs">Reply</a>
+                </div>
+                <div class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300"><%= comment.content %></div>
+              </article>
+
+              <% if (comment.children && comment.children.length) { %>
+                <div class="mt-4 space-y-4">
+                  <% comment.children.forEach((child) => { %>
+                    <% renderComment(child, depth + 1); %>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          <% } %>
+
+          <% commentTree.forEach((comment) => { %>
+            <% renderComment(comment, 0); %>
+          <% }) %>
+        </div>
+      </section>
+    </div>
+
+    <aside class="space-y-6 lg:sticky lg:top-24 lg:self-start">
+      <div class="wp-panel p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Informasi</p>
+        <dl class="mt-4 space-y-4 text-sm">
+          <div class="flex items-center justify-between gap-4">
+            <dt class="text-slate-500 dark:text-slate-400">Published</dt>
+            <dd class="font-medium text-slate-950 dark:text-white"><%= formattedDate %></dd>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <dt class="text-slate-500 dark:text-slate-400">Reading time</dt>
+            <dd class="font-medium text-slate-950 dark:text-white"><%= post.readingTime %> min</dd>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <dt class="text-slate-500 dark:text-slate-400">Views</dt>
+            <dd class="font-medium text-slate-950 dark:text-white"><%= post.viewCount %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="wp-panel p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Quick Jump</p>
+        <div class="mt-4 space-y-2">
+          <a href="#comments" class="block rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:text-slate-200">Lompat ke komentar</a>
+          <% if (safeFaqItems.length) { %>
+            <a href="#faq" class="block rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:text-slate-200">Lompat ke FAQ</a>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="wp-panel p-6" data-article-share data-share-url="<%= shareUrl %>" data-share-title="<%= shareTitle %>" data-share-text="<%= shareText %>">
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Bagikan artikel</p>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Kirim artikel ke platform mana pun. Preview share tetap membawa thumbnail dari metadata halaman.</p>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button type="button" class="wp-btn wp-btn-primary flex-1" data-share-native>Bagikan via perangkat</button>
+          <button type="button" class="wp-btn wp-btn-secondary flex-1" data-share-copy>Salin tautan</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</article>

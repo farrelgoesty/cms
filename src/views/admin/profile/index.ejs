@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Profile Settings · CMS Professional</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f4f7fc;
+      color: #1a2c3e;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .profile-container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* Header Premium */
+    .header-premium {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 1.75rem;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+
+    .header-gradient {
+      background: linear-gradient(120deg, #0f2b3d 0%, #1a5f7a 100%);
+      padding: 2rem 2rem 1.75rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-gradient::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Profile Header Card */
+    .profile-header {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+
+    .profile-header-content {
+      padding: 2rem;
+      background: linear-gradient(135deg, #fafdff, #ffffff);
+    }
+
+    .profile-avatar-large {
+      width: 5rem;
+      height: 5rem;
+      background: linear-gradient(135deg, #e0eaf5, #dce5ed);
+      border-radius: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .profile-avatar-large img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .stats-badge {
+      background: #f1f5f9;
+      border-radius: 1rem;
+      padding: 0.75rem 1.25rem;
+      text-align: center;
+    }
+
+    /* Form Card */
+    .form-card {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+    }
+
+    .form-header {
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
+      border-bottom: 1px solid #eef2f8;
+    }
+
+    .form-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .form-body {
+      padding: 1.75rem;
+    }
+
+    /* Input Styles */
+    .input-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .input-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-field {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #1a5f7a;
+      box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.1);
+    }
+
+    textarea.input-field {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(105deg, #1f6390 0%, #0e4a6e 100%);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 74, 110, 0.25);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    /* Alert */
+    .alert-modern {
+      border-radius: 1rem;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .alert-error {
+      background: #fff5f5;
+      border-left: 4px solid #ef4444;
+      color: #b91c1c;
+    }
+
+    .alert-success {
+      background: #f0fdf4;
+      border-left: 4px solid #10b981;
+      color: #166534;
+    }
+
+    /* Two Column Grid */
+    .two-column-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    /* Info Cards */
+    .info-card {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .info-card-header {
+      padding: 1rem 1.5rem;
+      background: #fafdff;
+      border-bottom: 1px solid #f0f4fa;
+    }
+
+    .info-card-header h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .info-card-body {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f4fa;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .info-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    @media (max-width: 880px) {
+      body {
+        padding: 1rem;
+      }
+
+      .two-column-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      .profile-container {
+        max-width: 100%;
+      }
+
+      .profile-header-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .stats-badge {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <% const safeProfileErrors=typeof profileErrors !=="undefined" && profileErrors ? profileErrors : {}; const
+    safePasswordErrors=typeof passwordErrors !=="undefined" && passwordErrors ? passwordErrors : {}; const
+    safeProfileValues=typeof profileValues !=="undefined" && profileValues ? profileValues : {}; const
+    safePasswordValues=typeof passwordValues !=="undefined" && passwordValues ? passwordValues : {}; const
+    profileUser=typeof profile !=="undefined" && profile ? profile : null; const
+    profileFieldErrors=Object.values(safeProfileErrors).flat(); const
+    passwordFieldErrors=Object.values(safePasswordErrors).flat(); %>
+    <div class="profile-container">
+      <!-- HEADER PREMIUM -->
+      <div class="header-premium">
+        <div class="header-gradient">
+          <div style="position: relative; z-index: 2;">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur">
+                <i class="fas fa-user-circle text-white text-lg"></i>
+              </div>
+              <div>
+                <span
+                  class="text-white/50 text-[0.65rem] font-semibold tracking-wider uppercase flex items-center gap-2">
+                  <i class="fas fa-shield-alt text-[10px]"></i> Account Settings
+                </span>
+              </div>
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+              <i class="fas fa-user-edit text-white/80"></i> Profile Settings
+            </h1>
+            <p class="text-white/70 text-sm mt-2 max-w-2xl">
+              <i class="fas fa-info-circle mr-1"></i> Kelola informasi akun, avatar, bio, dan keamanan password Anda.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE HEADER CARD -->
+      <div class="profile-header">
+        <div class="profile-header-content">
+          <div class="flex flex-wrap items-center gap-6">
+            <div class="profile-avatar-large">
+              <% if (profileUser?.avatar) { %>
+                <img src="<%= profileUser.avatar %>" alt="<%= profileUser.name %>" />
+                <% } else { %>
+                  <i class="fas fa-user-circle fa-3x" style="color: #1a5f7a;"></i>
+                  <% } %>
+            </div>
+            <div class="flex-1">
+              <h2 class="text-xl font-bold text-slate-800">
+                <%= profileUser?.name || "User" %>
+              </h2>
+              <p class="text-sm text-slate-500 mt-1">
+                <%= profileUser?.email || "email@example.com" %>
+              </p>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span
+                  class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full text-xs">
+                  <i class="fas fa-check-circle"></i>
+                  <%= profileUser?.role || "Admin" %>
+                </span>
+                <span
+                  class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">
+                  <i class="fas fa-calendar-alt"></i> Joined: <%= profileUser ? new
+                    Date(profileUser.createdAt).toLocaleDateString("id-ID") : "-" %>
+                </span>
+              </div>
+            </div>
+            <div class="stats-badge">
+              <div class="text-2xl font-bold text-slate-800">
+                <%= profileUser?.bio ? "✓" : "○" %>
+              </div>
+              <div class="text-xs text-slate-500 mt-1">Profile Status</div>
+              <div class="text-xs font-medium text-emerald-600">
+                <%= profileUser?.bio ? "Complete" : "Basic" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TWO COLUMN GRID -->
+      <div class="two-column-grid">
+        <!-- LEFT COLUMN: Profile Information Form -->
+        <div class="form-card">
+          <div class="form-header">
+            <h3>
+              <i class="fas fa-user-edit" style="color: #1a5f7a;"></i>
+              Informasi Profil
+            </h3>
+          </div>
+          <div class="form-body">
+            <% if (profileFieldErrors.length) { %>
+              <div class="alert-modern alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                  <% profileFieldErrors.forEach((item)=> { %>
+                    <div>• <%= item %>
+                    </div>
+                    <% }) %>
+                </div>
+              </div>
+              <% } %>
+
+                <form method="post" action="/admin/profile" enctype="multipart/form-data">
+                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
+
+                  <div class="input-group">
+                    <label class="input-label" for="name">
+                      <i class="fas fa-user"></i> Nama Lengkap
+                    </label>
+                    <input class="input-field" id="name" name="name"
+                      value="<%= safeProfileValues.name || profileUser?.name || '' %>"
+                      placeholder="Nama lengkap Anda" />
+                  </div>
+
+                  <div class="input-group">
+                    <label class="input-label" for="email">
+                      <i class="fas fa-envelope"></i> Alamat Email
+                    </label>
+                    <input class="input-field" id="email" name="email" type="email"
+                      value="<%= safeProfileValues.email || profileUser?.email || '' %>"
+                      placeholder="email@example.com" />
+                  </div>
+
+                  <div class="input-group">
+                    <label class="input-label" for="avatarUpload">
+                      <i class="fas fa-cloud-upload-alt"></i> Upload Avatar Baru
+                    </label>
+                    <input class="input-field" id="avatarUpload" name="avatarUpload" type="file"
+                      accept=".jpg,.jpeg,.png,.webp,.gif,.svg,image/*" />
+                    <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG, WEBP, GIF. Maks 2MB</p>
+                  </div>
+
+                  <div class="input-group">
+                    <label class="input-label" for="avatar">
+                      <i class="fas fa-link"></i> Avatar URL (Alternatif)
+                    </label>
+                    <input class="input-field" id="avatar" name="avatar" placeholder="https://..."
+                      value="<%= safeProfileValues.avatar || profileUser?.avatar || '' %>" />
+                    <p class="text-xs text-slate-400 mt-1">Opsional. Gunakan URL gambar jika tidak ingin upload file.
+                    </p>
+                  </div>
+
+                  <div class="input-group">
+                    <label class="input-label" for="bio">
+                      <i class="fas fa-align-left"></i> Bio Singkat
+                    </label>
+                    <textarea class="input-field" id="bio" name="bio" rows="4"
+                      placeholder="Tulis ringkasan singkat tentang diri Anda..."><%= safeProfileValues.bio || profileUser?.bio || '' %></textarea>
+                  </div>
+
+                  <div class="flex flex-wrap gap-3">
+                    <button class="btn-primary" type="submit">
+                      <i class="fas fa-save"></i> Simpan Profil
+                    </button>
+                    <a class="btn-secondary" href="/admin/dashboard">
+                      <i class="fas fa-arrow-left"></i> Kembali
+                    </a>
+                  </div>
+                </form>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Security & Account Info -->
+        <div>
+          <!-- Change Password Card -->
+          <div class="form-card" style="margin-bottom: 1.5rem;">
+            <div class="form-header">
+              <h3>
+                <i class="fas fa-lock" style="color: #1a5f7a;"></i>
+                Keamanan Akun
+              </h3>
+            </div>
+            <div class="form-body">
+              <% if (passwordFieldErrors.length) { %>
+                <div class="alert-modern alert-error">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <div>
+                    <% passwordFieldErrors.forEach((item)=> { %>
+                      <div>• <%= item %>
+                      </div>
+                      <% }) %>
+                  </div>
+                </div>
+                <% } %>
+
+                  <form method="post" action="/admin/profile/password">
+                    <input type="hidden" name="_csrf"
+                      value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
+
+                    <div class="input-group">
+                      <label class="input-label" for="currentPassword">
+                        <i class="fas fa-key"></i> Password Saat Ini
+                      </label>
+                      <input class="input-field" id="currentPassword" name="currentPassword" type="password"
+                        autocomplete="current-password" value="<%= safePasswordValues.currentPassword || '' %>" />
+                    </div>
+
+                    <div class="input-group">
+                      <label class="input-label" for="newPassword">
+                        <i class="fas fa-plus-circle"></i> Password Baru
+                      </label>
+                      <input class="input-field" id="newPassword" name="newPassword" type="password"
+                        autocomplete="new-password" value="<%= safePasswordValues.newPassword || '' %>" />
+                      <p class="text-xs text-slate-400 mt-1">Minimal 8 karakter, kombinasi huruf dan angka</p>
+                    </div>
+
+                    <div class="input-group">
+                      <label class="input-label" for="confirmPassword">
+                        <i class="fas fa-check-circle"></i> Konfirmasi Password Baru
+                      </label>
+                      <input class="input-field" id="confirmPassword" name="confirmPassword" type="password"
+                        autocomplete="new-password" value="<%= safePasswordValues.confirmPassword || '' %>" />
+                    </div>
+
+                    <button class="btn-primary w-full" type="submit">
+                      <i class="fas fa-shield-alt"></i> Update Password
+                    </button>
+                  </form>
+            </div>
+          </div>
+
+          <!-- Account Information Card -->
+          <div class="info-card">
+            <div class="info-card-header">
+              <h4>
+                <i class="fas fa-chart-simple" style="color: #1a5f7a;"></i>
+                Informasi Akun
+              </h4>
+            </div>
+            <div class="info-card-body">
+              <div class="info-row">
+                <span class="info-label"><i class="fas fa-tag"></i> Role</span>
+                <span class="info-value">
+                  <%= profileUser?.role || "Administrator" %>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="fas fa-calendar-plus"></i> Akun Dibuat</span>
+                <span class="info-value">
+                  <%= profileUser ? new Date(profileUser.createdAt).toLocaleDateString("id-ID", { day: "numeric" ,
+                    month: "long" , year: "numeric" }) : "-" %>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="fas fa-edit"></i> Terakhir Diperbarui</span>
+                <span class="info-value">
+                  <%= profileUser ? new Date(profileUser.updatedAt).toLocaleDateString("id-ID", { day: "numeric" ,
+                    month: "long" , year: "numeric" }) : "-" %>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-label"><i class="fas fa-circle"></i> Status</span>
+                <span class="info-value"><span class="inline-flex items-center gap-1 text-emerald-600"><i
+                      class="fas fa-check-circle"></i> Active</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Completeness Card -->
+          <div class="info-card">
+            <div class="info-card-header">
+              <h4>
+                <i class="fas fa-percent" style="color: #1a5f7a;"></i>
+                Kelengkapan Profil
+              </h4>
+            </div>
+            <div class="info-card-body">
+              <% let completeness=0; if (profileUser?.name) completeness +=25; if (profileUser?.email) completeness
+                +=25; if (profileUser?.avatar) completeness +=25; if (profileUser?.bio) completeness +=25; %>
+                <div class="mb-2">
+                  <div class="w-full bg-slate-100 rounded-full h-2">
+                    <div class="bg-emerald-500 h-2 rounded-full" style="width: <%= completeness %>%"></div>
+                  </div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500">
+                  <span><i class="fas fa-user"></i> Nama</span>
+                  <span><i class="fas fa-envelope"></i> Email</span>
+                  <span><i class="fas fa-image"></i> Avatar</span>
+                  <span><i class="fas fa-align-left"></i> Bio</span>
+                </div>
+                <div class="mt-3 text-center">
+                  <span class="text-sm font-semibold text-slate-700">
+                    <%= completeness %>% Complete
+                  </span>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+
+</html>

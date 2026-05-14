@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Manajemen Komentar · CMS Professional</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f4f7fc;
+      color: #1a2c3e;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .comments-container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* Header Premium */
+    .header-premium {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 1.75rem;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+
+    .header-gradient {
+      background: linear-gradient(120deg, #0f2b3d 0%, #1a5f7a 100%);
+      padding: 2rem 2rem 1.75rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-gradient::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Search & Filter Card */
+    .filter-card {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+
+    .filter-header {
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
+      border-bottom: 1px solid #eef2f8;
+    }
+
+    .filter-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .filter-body {
+      padding: 1.5rem;
+    }
+
+    .filter-form {
+      display: grid;
+      grid-template-columns: 1fr 220px auto;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    /* Form Elements */
+    .input-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-field {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #1a5f7a;
+      box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.1);
+    }
+
+    select.input-field {
+      background-color: white;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(105deg, #1f6390 0%, #0e4a6e 100%);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 74, 110, 0.25);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    /* Comment Cards */
+    .comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .comment-card {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .comment-card:hover {
+      box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.08);
+    }
+
+    .comment-header {
+      padding: 1.25rem 1.5rem;
+      background: #fafdff;
+      border-bottom: 1px solid #f0f4fa;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .commenter-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .commenter-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      background: linear-gradient(135deg, #e0eaf5, #dce5ed);
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .commenter-avatar i {
+      font-size: 1.2rem;
+      color: #1a5f7a;
+    }
+
+    .commenter-details h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .commenter-details p {
+      font-size: 0.7rem;
+      color: #8196ae;
+      margin-top: 0.2rem;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .badge-pending {
+      background: #fff1e0;
+      color: #c97e0a;
+      border: 1px solid #ffedd5;
+    }
+
+    .badge-approved {
+      background: #e3f7ec;
+      color: #1f7840;
+      border: 1px solid #d1fae5;
+    }
+
+    .badge-spam {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .post-link {
+      font-size: 0.7rem;
+      color: #1a5f7a;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .post-link:hover {
+      text-decoration: underline;
+    }
+
+    .comment-content {
+      padding: 1.5rem;
+      background: #fefefe;
+    }
+
+    .comment-text {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #334155;
+      background: #f8fafc;
+      padding: 1rem 1.25rem;
+      border-radius: 1rem;
+      border-left: 3px solid #1a5f7a;
+    }
+
+    .comment-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+      font-size: 0.65rem;
+      color: #94a3b8;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      padding: 0.4rem 1rem;
+      border-radius: 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-approve {
+      background: #e3f7ec;
+      color: #1f7840;
+    }
+
+    .btn-approve:hover {
+      background: #d1fae5;
+    }
+
+    .btn-reject {
+      background: #fff1e0;
+      color: #c97e0a;
+    }
+
+    .btn-reject:hover {
+      background: #ffedd5;
+    }
+
+    .btn-delete {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .btn-delete:hover {
+      background: #fecaca;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      color: #94a3b8;
+    }
+
+    /* Pagination */
+    .pagination-modern {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 880px) {
+      body {
+        padding: 1rem;
+      }
+
+      .filter-form {
+        grid-template-columns: 1fr;
+      }
+
+      .comments-container {
+        max-width: 100%;
+      }
+
+      .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .action-buttons {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <% const statusLabelMap={ PENDING: "Pending" , APPROVED: "Approved" , SPAM: "Spam" }; const statusIconMap={
+    PENDING: "fa-clock" , APPROVED: "fa-check-circle" , SPAM: "fa-ban" }; const statusClassMap={
+    PENDING: "badge-pending" , APPROVED: "badge-approved" , SPAM: "badge-spam" }; %>
+    <div class="comments-container">
+      <!-- HEADER PREMIUM -->
+      <div class="header-premium">
+        <div class="header-gradient">
+          <div style="position: relative; z-index: 2;">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur">
+                <i class="fas fa-comments text-white text-lg"></i>
+              </div>
+              <div>
+                <span
+                  class="text-white/50 text-[0.65rem] font-semibold tracking-wider uppercase flex items-center gap-2">
+                  <i class="fas fa-shield-alt text-[10px]"></i> Moderation Panel
+                </span>
+              </div>
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+              <i class="fas fa-comment-dots text-white/80"></i> Comments
+            </h1>
+            <p class="text-white/70 text-sm mt-2 max-w-2xl">
+              <i class="fas fa-info-circle mr-1"></i> Moderasi komentar, approve/reject, dan cek komentar yang terkait
+              post tertentu.
+            </p>
+            <div class="mt-4">
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur rounded-full text-white/80 text-xs">
+                <i class="fas fa-database"></i>
+                <%= total %> komentar
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH & FILTER CARD -->
+      <div class="filter-card">
+        <div class="filter-header">
+          <h3>
+            <i class="fas fa-search" style="color: #1a5f7a;"></i>
+            Filter Komentar
+          </h3>
+        </div>
+        <div class="filter-body">
+          <form method="get" action="/admin/comments" class="filter-form">
+            <div>
+              <label class="input-label">
+                <i class="fas fa-search"></i> Cari Komentar
+              </label>
+              <input class="input-field" name="q" value="<%= q || '' %>"
+                placeholder="Cari nama, email, isi komentar, atau judul artikel..." />
+            </div>
+            <div>
+              <label class="input-label">
+                <i class="fas fa-filter"></i> Status
+              </label>
+              <select class="input-field" name="status">
+                <option value="ALL" <%=status==='ALL' ? 'selected' : '' %>>📋 Semua status</option>
+                <option value="PENDING" <%=status==='PENDING' ? 'selected' : '' %>>⏳ Pending</option>
+                <option value="APPROVED" <%=status==='APPROVED' ? 'selected' : '' %>>✅ Approved</option>
+                <option value="SPAM" <%=status==='SPAM' ? 'selected' : '' %>>🚫 Spam</option>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn-primary" type="submit">
+                <i class="fas fa-sliders-h"></i> Filter
+              </button>
+              <% if (q || status !=='ALL' ) { %>
+                <a href="/admin/comments" class="btn-secondary">
+                  <i class="fas fa-times"></i> Reset
+                </a>
+                <% } %>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- COMMENTS LIST -->
+      <% if (!comments.length) { %>
+        <div class="empty-state">
+          <i class="fas fa-comment-slash fa-3x mb-3 block"></i>
+          <p class="text-sm">Tidak ada komentar yang sesuai dengan filter.</p>
+          <p class="text-xs mt-1">Coba ubah kata kunci pencarian atau filter status.</p>
+        </div>
+        <% } else { %>
+          <div class="comments-list">
+            <% comments.forEach((comment)=> { %>
+              <div class="comment-card">
+                <div class="comment-header">
+                  <div class="commenter-info">
+                    <div class="commenter-avatar">
+                      <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="commenter-details">
+                      <h4>
+                        <%= comment.name %>
+                          <span class="badge-status <%= statusClassMap[comment.status] || 'badge-pending' %>">
+                            <i class="fas <%= statusIconMap[comment.status] || 'fa-clock' %>"></i>
+                            <%= statusLabelMap[comment.status] || comment.status %>
+                          </span>
+                      </h4>
+                      <p>
+                        <i class="far fa-envelope"></i>
+                        <%= comment.email || 'Email tidak tersedia' %>
+                          <span class="mx-1">•</span>
+                          <i class="far fa-calendar-alt"></i>
+                          <%= new Date(comment.createdAt).toLocaleString("id-ID", { day: "numeric" , month: "short" ,
+                            year: "numeric" , hour: "2-digit" , minute: "2-digit" }) %>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="action-buttons">
+                    <% if (comment.status !=='APPROVED' ) { %>
+                      <form
+                        action="/admin/comments/<%= comment.id %>?_method=PATCH"
+                        method="post"
+                        data-crud-form
+                        data-confirm-title="Konfirmasi persetujuan"
+                        data-confirm-message="Apakah Anda yakin untuk menyetujui komentar ini?"
+                        style="display: inline;">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <input type="hidden" name="status" value="APPROVED" />
+                        <button class="btn-action btn-approve" type="submit">
+                          <i class="fas fa-check-circle"></i> Approve
+                        </button>
+                      </form>
+                      <% } %>
+                        <% if (comment.status !=='SPAM' ) { %>
+                          <form
+                            action="/admin/comments/<%= comment.id %>?_method=PATCH"
+                            method="post"
+                            data-crud-form
+                            data-confirm-title="Konfirmasi penolakan"
+                            data-confirm-message="Apakah Anda yakin untuk menolak komentar ini?"
+                            style="display: inline;">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <input type="hidden" name="status" value="SPAM" />
+                            <button class="btn-action btn-reject" type="submit">
+                              <i class="fas fa-ban"></i> Reject
+                            </button>
+                          </form>
+                          <% } %>
+                            <form
+                              action="/admin/comments/<%= comment.id %>?_method=DELETE"
+                              method="post"
+                              data-crud-form
+                              data-confirm-title="Konfirmasi penghapusan"
+                              data-confirm-message="Apakah Anda yakin untuk menghapus komentar ini?"
+                              style="display: inline;">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button class="btn-action btn-delete" type="submit">
+                                <i class="fas fa-trash-alt"></i> Delete
+                              </button>
+                            </form>
+                  </div>
+                </div>
+                <div class="comment-content">
+                  <div class="comment-text">
+                    <i class="fas fa-quote-left text-slate-300 mr-2"></i>
+                    <%= comment.content %>
+                  </div>
+                  <div class="comment-meta">
+                    <span>
+                      <i class="fas fa-newspaper"></i> Postingan:
+                      <a class="post-link" href="/posts/<%= comment.post?.slug || '#' %>" target="_blank">
+                        <%= comment.post?.title || 'Artikel tidak tersedia' %>
+                          <i class="fas fa-external-link-alt"></i>
+                      </a>
+                    </span>
+                    <% if (comment.parent) { %>
+                      <span>
+                        <i class="fas fa-reply"></i> Balasan untuk: <strong>
+                          <%= comment.parent.name %>
+                        </strong>
+                      </span>
+                      <% } %>
+                        <span>
+                          <i class="fas fa-fingerprint"></i> ID: <%= comment.id.slice(0, 8) %>...
+                        </span>
+                        <span>
+                          <i class="fas fa-chart-line"></i> Status post:
+                          <span class="badge-status" style="padding: 0.1rem 0.5rem; font-size: 0.6rem;">
+                            <%= comment.post?.status==='published' ? 'Terbit' : (comment.post?.status || 'Draft' ) %>
+                          </span>
+                        </span>
+                  </div>
+                </div>
+              </div>
+              <% }) %>
+          </div>
+          <% } %>
+
+            <!-- PAGINATION MODERN -->
+            <% if (typeof pagination !=='undefined' && pagination && pagination.totalPages> 1) { %>
+              <div class="pagination-modern">
+                <nav
+                  class="inline-flex items-center gap-1.5 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+                  <% if (pagination.hasPrev) { %>
+                    <a href="?page=<%= pagination.prevPage %><%= q ? `&q=${encodeURIComponent(q)}` : '' %><%= status !== 'ALL' ? `&status=${status}` : '' %>"
+                      class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                      <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <% } else { %>
+                      <span
+                        class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed"><i
+                          class="fas fa-chevron-left"></i></span>
+                      <% } %>
+
+                        <% let startPage=Math.max(1, pagination.currentPage - 2); let
+                          endPage=Math.min(pagination.totalPages, pagination.currentPage + 2); if (endPage - startPage <
+                          4) { if (startPage> 1) startPage = Math.max(1, endPage - 4);
+                          if (endPage < pagination.totalPages) endPage=Math.min(pagination.totalPages, startPage + 4); }
+                            for (let p=startPage; p <=endPage; p++) { %>
+                            <% if (p===pagination.currentPage) { %>
+                              <span
+                                class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-800 text-white font-semibold shadow-sm">
+                                <%= p %>
+                              </span>
+                              <% } else { %>
+                                <a href="?page=<%= p %><%= q ? `&q=${encodeURIComponent(q)}` : '' %><%= status !== 'ALL' ? `&status=${status}` : '' %>"
+                                  class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                                  <%= p %>
+                                </a>
+                                <% } %>
+                                  <% } %>
+
+                                    <% if (pagination.hasNext) { %>
+                                      <a href="?page=<%= pagination.nextPage %><%= q ? `&q=${encodeURIComponent(q)}` : '' %><%= status !== 'ALL' ? `&status=${status}` : '' %>"
+                                        class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                      </a>
+                                      <% } else { %>
+                                        <span
+                                          class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed"><i
+                                            class="fas fa-chevron-right"></i></span>
+                                        <% } %>
+                </nav>
+              </div>
+              <% } %>
+
+                <!-- Footer Note -->
+                <div
+                  style="margin-top: 2rem; text-align: center; font-size: 0.7rem; color: #8aa3bc; border-top: 1px solid #e2ecf3; padding-top: 1.5rem;">
+                  <i class="fas fa-shield-alt"></i> Moderasi komentar · Total <%= total %> komentar
+                </div>
+    </div>
+
+</body>
+
+</html>

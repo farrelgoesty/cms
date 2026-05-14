@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Manajemen Kategori · CMS Professional</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f4f7fc;
+      color: #1a2c3e;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .categories-container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* Header Premium */
+    .header-premium {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 1.75rem;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+
+    .header-gradient {
+      background: linear-gradient(120deg, #0f2b3d 0%, #1a5f7a 100%);
+      padding: 2rem 2rem 1.75rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-gradient::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Create Category Card */
+    .create-card {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+      transition: all 0.2s;
+    }
+
+    .create-header {
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
+      border-bottom: 1px solid #eef2f8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .create-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .create-header h3 i {
+      color: #1a5f7a;
+      font-size: 1.1rem;
+    }
+
+    .create-body {
+      padding: 1.5rem;
+    }
+
+    /* Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    .input-group-category {
+      flex: 1;
+    }
+
+    .input-label-category {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-field-category {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .input-field-category:focus {
+      outline: none;
+      border-color: #1a5f7a;
+      box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.1);
+    }
+
+    .btn-primary-category {
+      background: linear-gradient(105deg, #1f6390 0%, #0e4a6e 100%);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary-category:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 74, 110, 0.25);
+    }
+
+    .btn-secondary-category {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-secondary-category:hover {
+      background: #e2e8f0;
+    }
+
+    /* Search Bar */
+    .search-bar {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #eef2f8;
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+    }
+
+    /* Table Premium */
+    .table-premium {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+    }
+
+    .table-premium table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table-premium th {
+      text-align: left;
+      padding: 1rem 1.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+      background: #f8fafc;
+      border-bottom: 1px solid #eef2f8;
+    }
+
+    .table-premium td {
+      padding: 1rem 1.5rem;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #f0f4fa;
+    }
+
+    .table-premium tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-premium tr:hover td {
+      background: #fafdff;
+    }
+
+    .category-name {
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .category-name i {
+      color: #1a5f7a;
+      font-size: 1rem;
+    }
+
+    .slug-text {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.5rem;
+      display: inline-block;
+    }
+
+    .badge-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.7rem;
+      background: #eef2ff;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1a5f7a;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .btn-action {
+      padding: 0.35rem 0.9rem;
+      border-radius: 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-edit {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .btn-edit:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-delete {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+
+    .btn-delete:hover {
+      background: #fee2e2;
+    }
+
+    /* Alert */
+    .alert-modern {
+      border-radius: 1rem;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .alert-error {
+      background: #fff5f5;
+      border-left: 4px solid #ef4444;
+      color: #b91c1c;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #94a3b8;
+    }
+
+    /* Pagination */
+    .pagination-modern {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .search-form {
+        grid-template-columns: 1fr;
+      }
+
+      .table-premium {
+        overflow-x: auto;
+      }
+
+      .table-premium th,
+      .table-premium td {
+        padding: 0.75rem 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <% const safeErrors=typeof errors !=="undefined" && errors ? errors : {}; const safeValues=typeof values
+    !=="undefined" && values ? values : {}; const fieldErrors=Object.values(safeErrors).flat(); const editing=typeof
+    editingCategory !=="undefined" && editingCategory ? editingCategory : null; %>
+    <div class="categories-container">
+      <!-- HEADER PREMIUM -->
+      <div class="header-premium">
+        <div class="header-gradient">
+          <div style="position: relative; z-index: 2;">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur">
+                <i class="fas fa-folder-tree text-white text-lg"></i>
+              </div>
+              <div>
+                <span
+                  class="text-white/50 text-[0.65rem] font-semibold tracking-wider uppercase flex items-center gap-2">
+                  <i class="fas fa-tags text-[10px]"></i> Taxonomy Management
+                </span>
+              </div>
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+              <i class="fas fa-folder-tree text-white/80"></i> Categories
+            </h1>
+            <p class="text-white/70 text-sm mt-2 max-w-2xl">
+              <i class="fas fa-info-circle mr-1"></i> Kelola kategori artikel dengan slug otomatis, pencarian, dan
+              pagination.
+            </p>
+            <div class="mt-4">
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur rounded-full text-white/80 text-xs">
+                <i class="fas fa-database"></i>
+                <%= total %> items
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="search-bar">
+        <form method="get" action="/admin/categories" class="search-form">
+          <div class="input-group-category">
+            <label class="input-label-category">
+              <i class="fas fa-search"></i> Cari Kategori
+            </label>
+            <input class="input-field-category" name="q" value="<%= q || '' %>"
+              placeholder="Cari berdasarkan nama atau slug..." />
+          </div>
+          <div class="flex gap-2">
+            <button class="btn-primary-category" type="submit">
+              <i class="fas fa-sliders-h"></i> Filter
+            </button>
+            <% if (q) { %>
+              <a href="/admin/categories" class="btn-secondary-category">
+                <i class="fas fa-times"></i> Reset
+              </a>
+              <% } %>
+          </div>
+        </form>
+      </div>
+
+      <!-- CREATE / EDIT CATEGORY CARD -->
+      <div class="create-card">
+        <div class="create-header">
+          <h3>
+            <i class="fas <%= editing ? 'fa-pen-ruler' : 'fa-plus-circle' %>"></i>
+            <%= editing ? "Edit Kategori" : "Buat Kategori Baru" %>
+          </h3>
+          <% if (editing) { %>
+            <a href="/admin/categories" class="btn-secondary-category" style="padding: 0.5rem 1rem;">
+              <i class="fas fa-times"></i> Batal Edit
+            </a>
+            <% } %>
+        </div>
+        <div class="create-body">
+          <% if (fieldErrors.length) { %>
+            <div class="alert-modern alert-error" data-form-errors>
+              <i class="fas fa-exclamation-triangle"></i>
+              <div>
+                <% fieldErrors.forEach((item)=> { %>
+                  <div>• <%= item %>
+                  </div>
+                  <% }) %>
+              </div>
+            </div>
+            <% } %>
+
+              <form
+                method="post"
+                action="<%= editing ? `/admin/categories/${editing.id}?_method=PUT&page=${page || 1}${q ? `&q=${encodeURIComponent(q)}` : ''}` : `/admin/categories?page=${page || 1}${q ? `&q=${encodeURIComponent(q)}` : ''}` %>"
+                data-crud-form
+                data-confirm-title="<%= editing ? 'Konfirmasi edit' : 'Konfirmasi simpan' %>"
+                data-confirm-message="<%= editing ? 'Apakah Anda yakin untuk mengedit kategori ini?' : 'Apakah Anda yakin untuk menambah kategori ini?' %>"
+              >
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
+                <div class="form-grid">
+                  <div class="input-group-category">
+                    <label class="input-label-category" for="name">
+                      <i class="fas fa-tag"></i> Nama Kategori
+                    </label>
+                    <input class="input-field-category" id="name" name="name" maxlength="120"
+                      value="<%= editing ? editing.name : (safeValues.name || '') %>"
+                      placeholder="Contoh: Technology, Lifestyle, Travel" required />
+                    <% if (editing) { %>
+                      <p class="text-xs text-slate-500 mt-2">
+                        <i class="fas fa-link"></i> Slug saat ini: <code class="slug-text"><%= editing.slug %></code>
+                      </p>
+                      <% } %>
+                  </div>
+                  <div>
+                    <button class="btn-primary-category" type="submit" style="width: 100%;">
+                      <i class="fas <%= editing ? 'fa-save' : 'fa-plus' %>"></i>
+                      <%= editing ? "Update Kategori" : "Tambah Kategori" %>
+                    </button>
+                  </div>
+                </div>
+              </form>
+        </div>
+      </div>
+
+      <!-- CATEGORIES TABLE PREMIUM -->
+      <div class="table-premium">
+        <table>
+          <thead>
+            <tr>
+              <th><i class="fas fa-tag mr-1"></i> Kategori</th>
+              <th><i class="fas fa-link mr-1"></i> Slug</th>
+              <th><i class="fas fa-newspaper mr-1"></i> Posts</th>
+              <th><i class="fas fa-calendar-alt mr-1"></i> Dibuat</th>
+              <th><i class="fas fa-edit mr-1"></i> Diperbarui</th>
+              <th class="text-right"><i class="fas fa-cog mr-1"></i> Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!categories.length) { %>
+              <tr>
+                <td colspan="6" class="empty-state">
+                  <i class="fas fa-folder-open fa-2x mb-2 block"></i>
+                  <p>Tidak ada kategori yang ditemukan.</p>
+                  <p class="text-xs mt-1">Buat kategori baru menggunakan form di atas.</p>
+                </td>
+              </tr>
+              <% } %>
+                <% categories.forEach((category)=> { %>
+                  <tr>
+                    <td>
+                      <div class="category-name">
+                        <i class="fas fa-folder"></i>
+                        <%= category.name %>
+                      </div>
+                    </td>
+                    <td>
+                      <code class="slug-text"><i class="fas fa-link"></i> <%= category.slug %></code>
+                    </td>
+                    <td>
+                      <span class="badge-count">
+                        <i class="fas fa-newspaper"></i>
+                        <%= category._count?.postCategories || 0 %> posts
+                      </span>
+                    </td>
+                    <td class="text-slate-500">
+                      <i class="far fa-calendar-alt"></i>
+                      <%= new Date(category.createdAt).toLocaleDateString("id-ID", { day: "numeric" , month: "short" ,
+                        year: "numeric" }) %>
+                    </td>
+                    <td class="text-slate-500">
+                      <i class="far fa-clock"></i>
+                      <%= new Date(category.updatedAt).toLocaleDateString("id-ID", { day: "numeric" , month: "short" ,
+                        year: "numeric" }) %>
+                    </td>
+                    <td>
+                      <div class="action-buttons">
+                        <a class="btn-action btn-edit"
+                          href="/admin/categories/<%= category.id %>/edit?page=<%= page %><%= q ? `&q=${encodeURIComponent(q)}` : '' %>">
+                          <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <form
+                          action="/admin/categories/<%= category.id %>?_method=DELETE&page=<%= page %><%= q ? `&q=${encodeURIComponent(q)}` : '' %>"
+                          method="post"
+                          data-crud-form
+                          data-confirm-title="Konfirmasi penghapusan"
+                          data-confirm-message="Apakah Anda yakin untuk menghapus kategori ini?"
+                          style="display: inline;">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button class="btn-action btn-delete" type="submit">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION MODERN -->
+      <% if (typeof pagination !=='undefined' && pagination && pagination.totalPages> 1) { %>
+        <div class="pagination-modern">
+          <nav
+            class="inline-flex items-center gap-1.5 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+            <% if (pagination.hasPrev) { %>
+              <a href="?page=<%= pagination.prevPage %><%= q ? `&q=${encodeURIComponent(q)}` : '' %>"
+                class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+              <% } else { %>
+                <span class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed"><i
+                    class="fas fa-chevron-left"></i></span>
+                <% } %>
+
+                  <% let startPage=Math.max(1, pagination.currentPage - 2); let endPage=Math.min(pagination.totalPages,
+                    pagination.currentPage + 2); if (endPage - startPage < 4) { if (startPage> 1) startPage =
+                    Math.max(1, endPage - 4);
+                    if (endPage < pagination.totalPages) endPage=Math.min(pagination.totalPages, startPage + 4); } for
+                      (let p=startPage; p <=endPage; p++) { %>
+                      <% if (p===pagination.currentPage) { %>
+                        <span
+                          class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-800 text-white font-semibold shadow-sm">
+                          <%= p %>
+                        </span>
+                        <% } else { %>
+                          <a href="?page=<%= p %><%= q ? `&q=${encodeURIComponent(q)}` : '' %>"
+                            class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                            <%= p %>
+                          </a>
+                          <% } %>
+                            <% } %>
+
+                              <% if (pagination.hasNext) { %>
+                                <a href="?page=<%= pagination.nextPage %><%= q ? `&q=${encodeURIComponent(q)}` : '' %>"
+                                  class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                                  <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <% } else { %>
+                                  <span
+                                    class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed"><i
+                                      class="fas fa-chevron-right"></i></span>
+                                  <% } %>
+          </nav>
+        </div>
+        <% } %>
+
+          <!-- footer note -->
+          <div style="margin-top: 2rem; text-align: center; font-size: 0.7rem; color: #8aa3bc;">
+            <i class="fas fa-chart-simple"></i> Total <%= total %> kategori · Slug dibuat otomatis dari nama
+          </div>
+    </div>
+
+</body>
+
+</html>

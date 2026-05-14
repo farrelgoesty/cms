@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+
+<head>
+  <% const siteTitle=typeof appName !=="undefined" ? appName : "CMS Blog" ; const pageTitle=typeof title !=="undefined"
+    ? title : "Admin" ; const currentUser=typeof user !=="undefined" && user ? user : null; const
+    userInitials=currentUser && currentUser.name ? currentUser.name.split(/\s+/).filter(Boolean).slice(0,
+    2).map((part)=> part[0]).join("").toUpperCase() : "U";
+    const csrf = typeof csrfToken !== "undefined" ? csrfToken : "";
+    const isAuthPage = typeof authPage !== "undefined" && authPage;
+    %>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="csrf-token" content="<%= csrf %>" />
+    <title>
+      <%= pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle %>
+    </title>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/css/app.css" />
+
+    <script>
+      window.CMS_CSRF_TOKEN = "<%= csrf %>";
+      window.CMS_INITIAL_NOTICES = <%- JSON.stringify((typeof notice !== "undefined" && notice) ? [{ type: typeof noticeType !== "undefined" && noticeType ? noticeType : "info", message: notice }] : []) %>;
+
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"]
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'slide-up': 'slideUp 0.4s ease-out',
+              'slide-down': 'slideDown 0.4s ease-out',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(10px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              slideDown: {
+                '0%': { transform: 'translateY(-10px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+            },
+            colors: {
+              brand: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                200: "#bfdbfe",
+                300: "#93c5fd",
+                400: "#60a5fa",
+                500: "#3b82f6",
+                600: "#2271b1",
+                700: "#135e96",
+                800: "#0e4a73",
+                900: "#0a3654"
+              }
+            }
+          }
+        }
+      };
+    </script>
+    <script src="/js/app.js" defer></script>
+    <style>
+      /* Additional modern styles */
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      /* Smooth transitions */
+      .wp-nav-link,
+      .wp-btn,
+      .wp-panel,
+      .wp-panel-strong {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Icon wrapper hover effect */
+      .nav-icon-wrapper {
+        transition: all 0.2s ease;
+      }
+
+      .wp-nav-link:hover .nav-icon-wrapper {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #2271b1, #135e96);
+        color: white;
+        box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3);
+      }
+
+      .wp-nav-link-active .nav-icon-wrapper {
+        background: linear-gradient(135deg, #2271b1, #135e96);
+        color: white;
+        box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3);
+      }
+
+      /* Glass effect */
+      .glass-enhanced {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      /* Sidebar icon pulse animation */
+      @keyframes iconPulse {
+
+        0%,
+        100% {
+          transform: scale(1);
+        }
+
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .wp-nav-link-active .nav-icon-wrapper i {
+        animation: iconPulse 0.3s ease;
+      }
+
+      .admin-sidebar .wp-nav-link {
+        justify-content: flex-start;
+      }
+    </style>
+</head>
+
+<body class="h-full wp-shell bg-gradient-to-br from-slate-50 via-white to-slate-100 font-sans">
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+  <% if (isAuthPage) { %>
+    <!-- Auth Pages (Login/Register) -->
+    <div class="min-h-screen flex items-center justify-center p-4">
+      <div class="w-full max-w-6xl animate-fade-in">
+        <%- body %>
+      </div>
+    </div>
+    <% } else { %>
+      <!-- Admin Dashboard Layout -->
+      <div class="flex min-h-screen">
+        <!-- SIDEBAR PREMIUM WITH ENHANCED ICONS -->
+        <aside
+          class="admin-sidebar hidden w-80 flex-col border-r border-slate-200/60 bg-white/90 backdrop-blur-xl px-5 py-6 shadow-2xl transition-all duration-300 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:overflow-y-auto">
+
+          <!-- BRAND SECTION - Kotak Putih dengan Logo Biru -->
+          <div class="mb-8 rounded-2xl bg-white p-5 shadow-lg ring-1 ring-slate-200/60">
+            <div class="flex items-center gap-3">
+              <!-- Logo Kotak Biru dengan Huruf C Putih -->
+              <div
+                class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 shadow-md"
+                >
+                <span class="text-4xl font-black tracking-tight text-white">C</span>
+              </div>
+              <div>
+                <div class="text-[0.55rem] font-bold uppercase tracking-[0.25em] text-brand-600">
+                  <%= siteTitle %>
+                </div>
+                <div class="text-base font-bold text-slate-800 mt-0.5">
+                  Admin Panel
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Menu dengan Icon Premium -->
+          <nav class="flex-1 space-y-1.5">
+            <p class="mb-3 px-3 text-[0.6rem] font-bold uppercase tracking-[0.2em] text-slate-400">
+              <i class="fas fa-th-large mr-1 text-[0.5rem]"></i> MAIN MENU
+            </p>
+
+            <!-- Dashboard -->
+            <a class="wp-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 <%= typeof currentPath !== 'undefined' && currentPath === '/admin/dashboard' ? 'wp-nav-link-active bg-brand-50/80 ring-1 ring-brand-200' : 'hover:bg-slate-50' %>"
+              href="/admin/dashboard">
+              <div
+                class="nav-icon-wrapper flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand-600 shadow-sm ring-1 ring-slate-200 transition-all duration-200">
+                <i class="fas fa-chart-line text-lg"></i>
+              </div>
+              <div>
+                <span class="font-semibold text-slate-700">Dashboard</span>
+              </div>
+            </a>
+
+            <!-- Posts -->
+            <a class="wp-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/posts') ? 'wp-nav-link-active bg-brand-50/80 ring-1 ring-brand-200' : 'hover:bg-slate-50' %>"
+              href="/admin/posts">
+              <div
+                class="nav-icon-wrapper flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm ring-1 ring-slate-200 transition-all duration-200">
+                <i class="fas fa-newspaper text-lg"></i>
+              </div>
+              <div>
+                <span class="font-semibold text-slate-700">Posts</span>
+              </div>
+            </a>
+
+            <!-- Categories -->
+            <a class="wp-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/categories') ? 'wp-nav-link-active bg-brand-50/80 ring-1 ring-brand-200' : 'hover:bg-slate-50' %>"
+              href="/admin/categories">
+              <div
+                class="nav-icon-wrapper flex h-10 w-10 items-center justify-center rounded-xl bg-white text-amber-600 shadow-sm ring-1 ring-slate-200 transition-all duration-200">
+                <i class="fas fa-folder-tree text-lg"></i>
+              </div>
+              <div>
+                <span class="font-semibold text-slate-700">Categories</span>
+              </div>
+            </a>
+
+            <!-- Media Library -->
+            <a class="wp-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/media') ? 'wp-nav-link-active bg-brand-50/80 ring-1 ring-brand-200' : 'hover:bg-slate-50' %>"
+              href="/admin/media">
+              <div
+                class="nav-icon-wrapper flex h-10 w-10 items-center justify-center rounded-xl bg-white text-purple-600 shadow-sm ring-1 ring-slate-200 transition-all duration-200">
+                <i class="fas fa-images text-lg"></i>
+              </div>
+              <div>
+                <span class="font-semibold text-slate-700">Media Library</span>
+              </div>
+            </a>
+
+            <!-- Comments -->
+            <a class="wp-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/comments') ? 'wp-nav-link-active bg-brand-50/80 ring-1 ring-brand-200' : 'hover:bg-slate-50' %>"
+              href="/admin/comments">
+              <div
+                class="nav-icon-wrapper flex h-10 w-10 items-center justify-center rounded-xl bg-white text-rose-600 shadow-sm ring-1 ring-slate-200 transition-all duration-200">
+                <i class="fas fa-comments text-lg"></i>
+              </div>
+              <div>
+                <span class="font-semibold text-slate-700">Comments</span>
+              </div>
+            </a>
+
+            <div class="my-4 border-t border-slate-200/60"></div>
+
+            <p class="mb-3 px-3 text-[0.6rem] font-bold uppercase tracking-[0.2em] text-slate-400">
+              <i class="fas fa-globe mr-1 text-[0.5rem]"></i> EXTERNAL
+            </p>
+
+            <!-- View Blog -->
+            <a class="wp-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 hover:bg-slate-50"
+              href="/">
+              <div
+                class="nav-icon-wrapper flex h-10 w-10 items-center justify-center rounded-xl bg-white text-sky-600 shadow-sm ring-1 ring-slate-200 transition-all duration-200">
+                <i class="fas fa-globe text-lg"></i>
+              </div>
+              <div>
+                <span class="font-semibold text-slate-700">View Blog</span>
+              </div>
+            </a>
+          </nav>
+
+          <!-- User Profile Section Premium -->
+          <div class="mt-auto pt-6">
+            <div class="rounded-2xl bg-gradient-to-br from-slate-50 to-white p-4 shadow-md ring-1 ring-slate-200/50">
+              <div class="flex items-center gap-3">
+                <% if (currentUser && currentUser.avatar) { %>
+                  <img src="<%= currentUser.avatar %>" alt="<%= currentUser.name %>"
+                    class="h-14 w-14 rounded-xl object-cover border-2 border-brand-200 shadow-md" />
+                  <% } else { %>
+                    <div
+                      class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-xl shadow-md">
+                      <%= userInitials %>
+                    </div>
+                    <% } %>
+                      <div class="flex-1 min-w-0">
+                        <div class="font-bold text-slate-800 truncate">
+                          <%= currentUser ? currentUser.name : "Guest" %>
+                        </div>
+                        <div class="text-[0.65rem] text-slate-500 truncate">
+                          <%= currentUser ? currentUser.email : "" %>
+                        </div>
+                        <div class="mt-1">
+                          <span
+                            class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[0.55rem] font-semibold text-emerald-700">
+                            <i class="fas fa-circle text-[0.25rem]"></i> Active
+                          </span>
+                        </div>
+                      </div>
+              </div>
+
+              <div class="mt-4 space-y-2">
+                <a href="/admin/profile"
+                  class="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-all hover:bg-slate-50 hover:shadow-sm">
+                  <i class="fas fa-user-cog"></i> Profile Settings
+                </a>
+
+                <form action="/admin/logout" method="post">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                  <button type="submit"
+                    class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600 px-3 py-2 text-sm font-medium text-white transition-all hover:from-red-600 hover:to-red-700 hover:shadow-md">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="flex-1 lg:pl-80">
+          <!-- HEADER MODERN -->
+          <header class="sticky top-0 z-30 px-4 pt-4 sm:px-6 lg:px-8">
+            <div class="admin-topbar-card relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/90 px-5 py-4 shadow-[0_16px_36px_rgba(15,23,42,0.08)] backdrop-blur-xl lg:px-7 lg:py-5">
+              <div class="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-brand-100/70 to-transparent"></div>
+              <div class="absolute -bottom-10 -left-10 h-28 w-28 rounded-full border border-brand-200/60 bg-brand-50/40"></div>
+              <div class="relative flex items-center justify-between gap-4">
+                <div class="space-y-1">
+                  <p class="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
+                    <i class="fas fa-shield-alt mr-1.5 text-brand-600"></i> SECURE ACCESS
+                  </p>
+                  <h1 class="text-2xl font-bold tracking-tight text-slate-800 lg:text-[2rem]">
+                    <%= pageTitle || "Dashboard" %>
+                  </h1>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <!-- MOBILE NAVIGATION PILLS -->
+          <div class="sticky top-[73px] z-20 bg-slate-50/95 px-4 py-3 backdrop-blur-md shadow-sm lg:hidden">
+            <div class="flex gap-2 overflow-x-auto pb-1">
+              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath === '/admin/dashboard' ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
+                href="/admin/dashboard">
+                <i class="fas fa-chart-line mr-1"></i> Dashboard
+              </a>
+              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/posts') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
+                href="/admin/posts">
+                <i class="fas fa-newspaper mr-1"></i> Posts
+              </a>
+              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/categories') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
+                href="/admin/categories">
+                <i class="fas fa-folder-tree mr-1"></i> Categories
+              </a>
+              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/media') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
+                href="/admin/media">
+                <i class="fas fa-images mr-1"></i> Media
+              </a>
+              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/comments') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
+                href="/admin/comments">
+                <i class="fas fa-comments mr-1"></i> Comments
+              </a>
+            </div>
+          </div>
+
+          <!-- PAGE CONTENT -->
+          <main class="p-6 lg:p-8 animate-fade-in">
+            <%- body %>
+          </main>
+        </div>
+      </div>
+      <% } %>
+
+        <script>
+          // Toast Notifications
+          (function () {
+            const notices = window.CMS_INITIAL_NOTICES || [];
+            const toastContainer = document.getElementById('toastContainer');
+
+            function showToast(message, type = 'info') {
+              if (!toastContainer) return;
+
+              const colors = {
+                success: 'bg-emerald-500',
+                error: 'bg-red-500',
+                warning: 'bg-amber-500',
+                info: 'bg-blue-500'
+              };
+
+              const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+              };
+
+              const toast = document.createElement('div');
+              toast.className = `flex items-center gap-3 rounded-xl ${colors[type] || colors.info} px-4 py-3 text-white shadow-lg animate-slide-up`;
+              toast.innerHTML = `
+          <i class="fas ${icons[type] || icons.info}"></i>
+          <span class="text-sm font-medium flex-1">${escapeHtml(message)}</span>
+          <button class="text-white/80 hover:text-white transition" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+
+              toastContainer.appendChild(toast);
+              setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+              }, 5000);
+            }
+
+            function escapeHtml(text) {
+              const div = document.createElement('div');
+              div.textContent = text;
+              return div.innerHTML;
+            }
+
+            notices.forEach(notice => showToast(notice.message, notice.type));
+          })();
+        </script>
+</body>
+
+</html>

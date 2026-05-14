@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Media Library · CMS Professional</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f4f7fc;
+      color: #1a2c3e;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .media-container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* Header Premium */
+    .header-premium {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 1.75rem;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+
+    .header-gradient {
+      background: linear-gradient(120deg, #0f2b3d 0%, #1a5f7a 100%);
+      padding: 2rem 2rem 1.75rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-gradient::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Search & Filter Bar */
+    .search-card {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+
+    .search-header {
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
+      border-bottom: 1px solid #eef2f8;
+    }
+
+    .search-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .search-body {
+      padding: 1.5rem;
+    }
+
+    .filter-form {
+      display: grid;
+      grid-template-columns: 1fr 220px auto;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    /* Upload Card */
+    .upload-card {
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      overflow: hidden;
+      margin-bottom: 1.75rem;
+    }
+
+    .upload-header {
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
+      border-bottom: 1px solid #eef2f8;
+    }
+
+    .upload-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .upload-body {
+      padding: 1.5rem;
+    }
+
+    .upload-area {
+      border: 2px dashed #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: #1a5f7a;
+      background: #f8fafc;
+    }
+
+    /* Form Elements */
+    .input-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-field {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #1a5f7a;
+      box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.1);
+    }
+
+    select.input-field {
+      background-color: white;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(105deg, #1f6390 0%, #0e4a6e 100%);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 74, 110, 0.25);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-danger {
+      background: #fef2f2;
+      border: 1px solid #fee2e2;
+      padding: 0.5rem 1rem;
+      border-radius: 0.6rem;
+      font-weight: 600;
+      font-size: 0.7rem;
+      color: #ef4444;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-danger:hover {
+      background: #fee2e2;
+    }
+
+    /* Media Grid */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .media-card {
+      background: white;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+      border: 1px solid #eef2f8;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .media-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+      border-color: #dce5ed;
+    }
+
+    .media-preview {
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .media-preview img,
+    .media-preview video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .document-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    }
+
+    .media-info {
+      padding: 1.25rem;
+    }
+
+    .media-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .media-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .badge-media {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.6rem;
+      background: #f1f5f9;
+      border-radius: 2rem;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .media-path {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      font-family: monospace;
+      margin-bottom: 0.75rem;
+      word-break: break-all;
+    }
+
+    .media-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background: white;
+      border-radius: 1.5rem;
+      border: 1px solid #eef2f8;
+      color: #94a3b8;
+    }
+
+    /* Pagination */
+    .pagination-modern {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    /* Alert */
+    .alert-modern {
+      border-radius: 1rem;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .alert-error {
+      background: #fff5f5;
+      border-left: 4px solid #ef4444;
+      color: #b91c1c;
+    }
+
+    .alert-success {
+      background: #f0fdf4;
+      border-left: 4px solid #10b981;
+      color: #166534;
+    }
+
+    @media (max-width: 880px) {
+      body {
+        padding: 1rem;
+      }
+
+      .filter-form {
+        grid-template-columns: 1fr;
+      }
+
+      .media-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <% const mediaTypeOptions=typeof mediaTypes !=="undefined" && Array.isArray(mediaTypes) ? mediaTypes : []; %>
+    <div class="media-container">
+      <!-- HEADER PREMIUM -->
+      <div class="header-premium">
+        <div class="header-gradient">
+          <div style="position: relative; z-index: 2;">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur">
+                <i class="fas fa-images text-white text-lg"></i>
+              </div>
+              <div>
+                <span
+                  class="text-white/50 text-[0.65rem] font-semibold tracking-wider uppercase flex items-center gap-2">
+                  <i class="fas fa-database text-[10px]"></i> Asset Management
+                </span>
+              </div>
+            </div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+              <i class="fas fa-images text-white/80"></i> Media Library
+            </h1>
+            <p class="text-white/70 text-sm mt-2 max-w-2xl">
+              <i class="fas fa-info-circle mr-1"></i> Kelola aset, cari media, filter berdasarkan tipe file, dan upload
+              dengan batas maksimal 5 MB.
+            </p>
+            <div class="mt-4">
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur rounded-full text-white/80 text-xs">
+                <i class="fas fa-database"></i>
+                <%= total %> items
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH & FILTER CARD -->
+      <div class="search-card">
+        <div class="search-header">
+          <h3>
+            <i class="fas fa-search" style="color: #1a5f7a;"></i>
+            Filter Media
+          </h3>
+        </div>
+        <div class="search-body">
+          <form method="get" action="/admin/media" class="filter-form">
+            <div>
+              <label class="input-label">
+                <i class="fas fa-search"></i> Cari File
+              </label>
+              <input class="input-field" name="q" value="<%= q || '' %>"
+                placeholder="Cari nama file, alt text, atau MIME type..." />
+            </div>
+            <div>
+              <label class="input-label">
+                <i class="fas fa-filter"></i> Tipe File
+              </label>
+              <select class="input-field" name="type">
+                <% mediaTypeOptions.forEach((item)=> { %>
+                  <option value="<%= item.value %>" <%=type===item.value ? 'selected' : '' %>><%= item.label %>
+                  </option>
+                  <% }) %>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn-primary" type="submit">
+                <i class="fas fa-sliders-h"></i> Filter
+              </button>
+              <% if (q || type !=='all' ) { %>
+                <a href="/admin/media" class="btn-secondary">
+                  <i class="fas fa-times"></i> Reset
+                </a>
+                <% } %>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- UPLOAD CARD -->
+      <div class="upload-card">
+        <div class="upload-header">
+          <h3>
+            <i class="fas fa-cloud-upload-alt" style="color: #1a5f7a;"></i>
+            Upload Asset Baru
+          </h3>
+        </div>
+        <div class="upload-body">
+          <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-cloud-upload-alt fa-2x text-slate-400 mb-2 block"></i>
+            <p class="text-sm text-slate-600">Klik atau drag & drop file untuk upload</p>
+            <p class="text-xs text-slate-400 mt-1">Supported: JPG, JPEG, PNG, WEBP, GIF, SVG, MP4, WEBM, MOV, PDF.
+              Maksimum 5 MB.</p>
+          </div>
+          <form
+            id="uploadForm"
+            action="/admin/media"
+            method="post"
+            enctype="multipart/form-data"
+            style="margin-top: 1rem;"
+            data-crud-form
+            data-confirm-title="Konfirmasi unggah"
+            data-confirm-message="Apakah Anda yakin untuk mengunggah file ini?"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input type="file" id="fileInput" name="media"
+              accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime,application/pdf"
+              style="display: none" onchange="document.getElementById('uploadForm').submit()" />
+            <div class="flex justify-center">
+              <button type="button" class="btn-primary" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-upload"></i> Pilih File
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- MEDIA GRID PREMIUM -->
+      <% if (!media.length) { %>
+        <div class="empty-state">
+          <i class="fas fa-folder-open fa-3x mb-3 block"></i>
+          <p class="text-sm">Tidak ada media yang ditemukan.</p>
+          <p class="text-xs mt-1">Upload file menggunakan form di atas.</p>
+        </div>
+        <% } else { %>
+          <div class="media-grid">
+            <% media.forEach((item)=> { %>
+              <% const isImage=item.kind==='image' ; %>
+                <% const isVideo=item.kind==='video' ; %>
+                  <% const isDocument=item.kind==='document' ; %>
+                    <div class="media-card">
+                      <div class="media-preview">
+                        <% if (isImage) { %>
+                          <img src="<%= item.previewUrl || item.filePath %>" alt="<%= item.altText || item.fileName %>"
+                            loading="lazy" />
+                          <% } else if (isVideo) { %>
+                            <video src="<%= item.filePath %>" preload="metadata"
+                              style="width:100%; height:100%; object-fit:cover;"></video>
+                            <% } else if (isDocument) { %>
+                              <div class="document-preview">
+                                <div class="text-center">
+                                  <i class="fas fa-file-pdf fa-3x text-red-400"></i>
+                                  <p class="text-xs font-semibold mt-2 text-slate-600">PDF Document</p>
+                                </div>
+                              </div>
+                              <% } else { %>
+                                <div class="document-preview">
+                                  <div class="text-center">
+                                    <i class="fas fa-file-alt fa-3x text-slate-400"></i>
+                                    <p class="text-xs font-semibold mt-2 text-slate-500">File</p>
+                                  </div>
+                                </div>
+                                <% } %>
+                      </div>
+                      <div class="media-info">
+                        <div class="media-title" title="<%= item.fileName %>">
+                          <i class="fas fa-file"></i>
+                          <%= item.fileName %>
+                        </div>
+                        <div class="media-meta">
+                          <span class="badge-media">
+                            <i class="fas fa-tag"></i>
+                            <%= item.kindLabel || item.kind || item.mimeType.split('/')[0] %>
+                          </span>
+                          <% if (item.width && item.height) { %>
+                            <span class="badge-media">
+                              <i class="fas fa-expand"></i>
+                              <%= item.width %>x<%= item.height %>
+                            </span>
+                            <% } %>
+                              <span class="badge-media">
+                                <i class="fas fa-weight-hanging"></i>
+                                <%= Math.round(item.fileSize / 1024) %> KB
+                              </span>
+                        </div>
+                        <div class="media-path">
+                          <i class="fas fa-link"></i>
+                          <%= item.filePath.length> 50 ? item.filePath.slice(0, 47) + '...' : item.filePath %>
+                        </div>
+                        <div class="media-meta">
+                          <span class="badge-media">
+                            <i class="far fa-calendar-alt"></i>
+                            <%= new Date(item.createdAt).toLocaleDateString("id-ID", { day: "numeric" , month: "short" ,
+                              year: "numeric" }) %>
+                          </span>
+                        </div>
+                        <div class="media-actions">
+                          <a class="btn-secondary" href="<%= item.filePath %>" target="_blank" rel="noopener noreferrer"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.7rem;">
+                            <i class="fas fa-external-link-alt"></i> Buka
+                          </a>
+                          <form
+                            action="/admin/media/<%= item.id %>?_method=DELETE"
+                            method="post"
+                            data-crud-form
+                            data-confirm-title="Konfirmasi penghapusan"
+                            data-confirm-message="Apakah Anda yakin untuk menghapus file ini?"
+                            style="display: inline;">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button class="btn-danger" type="submit">
+                              <i class="fas fa-trash-alt"></i> Hapus
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    <% }) %>
+          </div>
+          <% } %>
+
+            <!-- PAGINATION MODERN -->
+            <% if (typeof pagination !=='undefined' && pagination && pagination.totalPages> 1) { %>
+              <div class="pagination-modern">
+                <nav
+                  class="inline-flex items-center gap-1.5 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+                  <% if (pagination.hasPrev) { %>
+                    <a href="?page=<%= pagination.prevPage %><%= q ? `&q=${encodeURIComponent(q)}` : '' %><%= type !== 'all' ? `&type=${type}` : '' %>"
+                      class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                      <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <% } else { %>
+                      <span
+                        class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed"><i
+                          class="fas fa-chevron-left"></i></span>
+                      <% } %>
+
+                        <% let startPage=Math.max(1, pagination.currentPage - 2); let
+                          endPage=Math.min(pagination.totalPages, pagination.currentPage + 2); if (endPage - startPage <
+                          4) { if (startPage> 1) startPage = Math.max(1, endPage - 4);
+                          if (endPage < pagination.totalPages) endPage=Math.min(pagination.totalPages, startPage + 4); }
+                            for (let p=startPage; p <=endPage; p++) { %>
+                            <% if (p===pagination.currentPage) { %>
+                              <span
+                                class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-800 text-white font-semibold shadow-sm">
+                                <%= p %>
+                              </span>
+                              <% } else { %>
+                                <a href="?page=<%= p %><%= q ? `&q=${encodeURIComponent(q)}` : '' %><%= type !== 'all' ? `&type=${type}` : '' %>"
+                                  class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                                  <%= p %>
+                                </a>
+                                <% } %>
+                                  <% } %>
+
+                                    <% if (pagination.hasNext) { %>
+                                      <a href="?page=<%= pagination.nextPage %><%= q ? `&q=${encodeURIComponent(q)}` : '' %><%= type !== 'all' ? `&type=${type}` : '' %>"
+                                        class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition">
+                                        <i class="fas fa-chevron-right"></i>
+                                      </a>
+                                      <% } else { %>
+                                        <span
+                                          class="w-9 h-9 flex items-center justify-center rounded-xl text-slate-300 cursor-not-allowed"><i
+                                            class="fas fa-chevron-right"></i></span>
+                                        <% } %>
+                </nav>
+              </div>
+              <% } %>
+
+                <!-- Footer Note -->
+                <div
+                  style="margin-top: 2rem; text-align: center; font-size: 0.7rem; color: #8aa3bc; border-top: 1px solid #e2ecf3; padding-top: 1.5rem;">
+                  <i class="fas fa-chart-simple"></i> Total <%= total %> asset · Maksimal upload 5 MB per file
+                </div>
+    </div>
+
+</body>
+
+</html>

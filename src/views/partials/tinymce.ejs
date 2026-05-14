@@ -1,0 +1,153 @@
+<script src="/vendor/tinymce/tinymce.min.js"></script>
+<script>
+  window.CMS_CSRF_TOKEN = "<%= csrfToken || '' %>";
+
+  tinymce.init({
+    selector: "#content",
+    license_key: "gpl",
+    height: 600,
+    menubar: true,
+    branding: false,
+    promotion: false,
+    relative_urls: false,
+    convert_urls: false,
+    link_list: window.CMS_INTERNAL_LINKS || [],
+    link_target_list: false,
+    link_context_toolbar: true,
+    paste_data_images: true,
+    images_reuse_filename: true,
+    setup: (editor) => {
+      const emitDraftChange = () => {
+        window.dispatchEvent(new CustomEvent("cms:content-draft-change"));
+      };
+
+      editor.on("input change keyup undo redo setcontent", emitDraftChange);
+
+      editor.ui.registry.addButton("cmsmedia", {
+        text: "Media",
+        tooltip: "Insert from Media Library",
+        onAction: () => {
+          if (window.CMS_MEDIA_PICKER && typeof window.CMS_MEDIA_PICKER.open === "function") {
+            window.CMS_MEDIA_PICKER.open("content", editor);
+            return;
+          }
+
+          window.CMS_NOTIFY?.warning?.("Media picker belum siap.");
+        }
+      });
+
+      editor.on("init", emitDraftChange);
+
+      editor.ui.registry.addMenuItem("cmsmedia", {
+        text: "Media Library",
+        onAction: () => {
+          if (window.CMS_MEDIA_PICKER && typeof window.CMS_MEDIA_PICKER.open === "function") {
+            window.CMS_MEDIA_PICKER.open("content", editor);
+          }
+        }
+      });
+    },
+    plugins: [
+      "advlist",
+      "autolink",
+      "lists",
+      "link",
+      "image",
+      "charmap",
+      "preview",
+      "anchor",
+      "searchreplace",
+      "visualblocks",
+      "code",
+      "fullscreen",
+      "insertdatetime",
+      "media",
+      "table",
+      "help",
+      "wordcount"
+    ],
+    toolbar:
+      "undo redo | blocks | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | image media cmsmedia link | code fullscreen preview",
+    images_upload_url: "/admin/media/upload",
+    automatic_uploads: true,
+    file_picker_types: "image",
+    image_title: true,
+    file_picker_callback: (callback, _value, meta) => {
+      if (meta.filetype !== "image") {
+        return;
+      }
+
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/png,image/jpeg,image/webp,image/gif";
+
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const response = await fetch("/admin/media/upload", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "x-csrf-token": window.CMS_CSRF_TOKEN || ""
+          },
+          credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+          const raw = await response.text();
+          let message = raw || "Image upload failed";
+          try {
+            const parsed = JSON.parse(raw);
+            message = parsed.error || message;
+          } catch {}
+          throw new Error(message);
+        }
+
+        const result = await response.json();
+        if (!result?.location) {
+          throw new Error("Invalid upload response");
+        }
+
+        callback(result.location, { alt: file.name, title: file.name });
+      };
+
+      input.click();
+    },
+    images_upload_handler: async (blobInfo) => {
+      const formData = new FormData();
+      formData.append("image", blobInfo.blob(), blobInfo.filename());
+
+      const response = await fetch("/admin/media/upload", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "x-csrf-token": window.CMS_CSRF_TOKEN || ""
+        },
+        credentials: "same-origin"
+      });
+
+      if (!response.ok) {
+        const raw = await response.text();
+        let message = raw || "Image upload failed";
+        try {
+          const parsed = JSON.parse(raw);
+          message = parsed.error || message;
+        } catch {}
+        throw new Error(message);
+      }
+
+      const result = await response.json();
+      if (!result?.location) {
+        throw new Error("Invalid upload response");
+      }
+
+      return result.location;
+    }
+  });
+</script>

@@ -1,0 +1,388 @@
+<% const safeErrors = typeof errors !== "undefined" && errors ? errors : {}; %>
+<% const safeValues = typeof values !== "undefined" && values ? values : {}; %>
+<% const fieldErrors = Object.values(safeErrors).flat(); %>
+<% const editingPost = typeof post !== "undefined" && post ? post : null; %>
+<% const selectedCategoryIds = Array.isArray(safeValues.categoryIds) ? safeValues.categoryIds : typeof safeValues.categoryIds === "string" && safeValues.categoryIds ? [safeValues.categoryIds] : Array.isArray(editingPost?.postCategories) ? editingPost.postCategories.map((item) => item.categoryId) : []; %>
+<% const selectedTagIds = Array.isArray(safeValues.tagIds) ? safeValues.tagIds : typeof safeValues.tagIds === "string" && safeValues.tagIds ? [safeValues.tagIds] : Array.isArray(editingPost?.postTags) ? editingPost.postTags.map((item) => item.tagId) : []; %>
+<% const categoryNamesValue = safeValues.categoryNames || ''; %>
+<% const tagNamesValue = safeValues.tagNames || ''; %>
+<% const initialFaqItems = Array.isArray(safeValues.faqItems)
+  ? safeValues.faqItems
+  : typeof safeValues.faqItems === "string" && safeValues.faqItems.trim()
+    ? safeValues.faqItems
+    : Array.isArray(editingPost?.faqItems)
+      ? editingPost.faqItems
+      : []; %>
+<% const youtubeUrlValue = safeValues.youtubeUrl || editingPost?.youtubeUrl || ''; %>
+<% const defaultYoutubeLabelValue = typeof defaultYoutubeLabel !== "undefined" ? defaultYoutubeLabel : 'Video Pendukung'; %>
+<% const youtubeLabelValue = safeValues.youtubeLabel || editingPost?.youtubeLabel || defaultYoutubeLabelValue; %>
+<% const youtubePositionValue = safeValues.youtubePosition || editingPost?.youtubePosition || 'TOP'; %>
+<% const previewYoutube = typeof youtubePreview !== "undefined" ? youtubePreview : null; %>
+<% const featuredImageValue = editingPost?.featuredImage || safeValues.featuredImage || ''; %>
+<% const youtubeLabelPresetOptions = typeof youtubeLabelOptions !== "undefined" && Array.isArray(youtubeLabelOptions) ? youtubeLabelOptions : []; %>
+
+<div class="space-y-6" data-post-form-root>
+  <div class="wp-panel p-6">
+    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-semibold"><%= pageTitle || "Post" %></h2>
+        <p class="mt-1 text-sm text-slate-500"><%= pageDescription || "Editor artikel dengan media library, upload lokal, FAQ, dan video YouTube dinamis." %></p>
+      </div>
+      <% if (editingPost) { %>
+        <a href="/admin/posts/<%= editingPost.id %>/preview" class="wp-btn wp-btn-secondary">Preview</a>
+      <% } %>
+    </div>
+
+    <% if (fieldErrors.length) { %>
+      <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200" data-form-errors>
+        <% fieldErrors.forEach((item) => { %>
+          <div><%= item %></div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <form
+      method="post"
+      action="<%= formAction %>"
+      class="space-y-5"
+      data-crud-form
+      data-confirm-title="<%= editingPost ? 'Konfirmasi edit' : 'Konfirmasi simpan' %>"
+      data-confirm-message="<%= editingPost ? 'Apakah Anda yakin untuk mengedit post ini?' : 'Apakah Anda yakin untuk membuat post ini?' %>"
+    >
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
+
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div>
+          <label class="label" for="title">Title</label>
+          <input data-slug-source class="input" id="title" name="title" value="<%= editingPost?.title || safeValues.title || '' %>" maxlength="255" required />
+        </div>
+        <div>
+          <label class="label" for="slug">Slug</label>
+          <input data-slug-target class="input" id="slug" name="slug" value="<%= editingPost?.slug || safeValues.slug || '' %>" maxlength="180" />
+        </div>
+
+        <div class="lg:col-span-2">
+          <label class="label" for="subheadline">Subheadline</label>
+          <input class="input" id="subheadline" name="subheadline" maxlength="500" value="<%= editingPost?.subheadline || safeValues.subheadline || '' %>" placeholder="Ringkasan singkat yang muncul di bawah judul artikel" />
+          <p class="mt-2 text-xs text-slate-500">Teks ini membantu readability dan tetap alami untuk pembaca.</p>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <label class="label">Categories</label>
+              <p class="text-xs text-slate-500">Pilih kategori yang sudah ada atau tambahkan lewat modal.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="wp-badge"><span data-taxonomy-count="category"><%= categories.length %></span> tersedia</span>
+              <button class="wp-btn wp-btn-primary" type="button" data-taxonomy-modal-open="category">Tambah kategori</button>
+            </div>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2" data-taxonomy-list="category">
+            <% if (!categories.length) { %>
+              <div class="rounded-2xl border border-dashed border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm text-slate-500 dark:border-slate-800" data-taxonomy-empty="category">
+                Belum ada category. Tambahkan category baru lewat tombol di atas.
+              </div>
+            <% } %>
+            <% categories.forEach((category) => { %>
+              <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800">
+                <input
+                  type="checkbox"
+                  name="categoryIds"
+                  value="<%= category.id %>"
+                  class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
+                  <%= selectedCategoryIds.includes(category.id) ? 'checked' : '' %>
+                />
+                <span><%= category.name %></span>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <label class="label">Tags</label>
+              <p class="text-xs text-slate-500">Pilih tag yang sudah ada atau tambahkan lewat modal.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="wp-badge"><span data-taxonomy-count="tag"><%= tags.length %></span> tersedia</span>
+              <button class="wp-btn wp-btn-primary" type="button" data-taxonomy-modal-open="tag">Tambah tag</button>
+            </div>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2" data-taxonomy-list="tag">
+            <% if (!tags.length) { %>
+              <div class="rounded-2xl border border-dashed border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm text-slate-500 dark:border-slate-800" data-taxonomy-empty="tag">
+                Belum ada tag. Tambahkan tag baru lewat tombol di atas.
+              </div>
+            <% } %>
+            <% tags.forEach((tag) => { %>
+              <label class="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800">
+                <input
+                  type="checkbox"
+                  name="tagIds"
+                  value="<%= tag.id %>"
+                  class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
+                  <%= selectedTagIds.includes(tag.id) ? 'checked' : '' %>
+                />
+                <span><%= tag.name %></span>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+        <div class="grid gap-5 lg:grid-cols-2">
+        <div class="space-y-3" data-featured-image-field>
+          <div class="flex items-center justify-between gap-3">
+            <label class="label" for="featuredImage">Featured image</label>
+            <span class="wp-badge">Max 5 MB</span>
+          </div>
+          <div class="rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-4">
+            <div class="flex flex-wrap gap-2">
+              <button class="wp-btn wp-btn-primary" type="button" data-featured-image-pick>Upload lokal</button>
+              <button class="wp-btn wp-btn-secondary" type="button" data-media-picker-open="thumbnail">Pilih dari Media Library</button>
+              <button class="wp-btn wp-btn-ghost" type="button" data-featured-image-remove>Hapus</button>
+            </div>
+            <div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
+              <label class="flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] p-4 text-center transition-all duration-200 hover:border-brand-500 hover:bg-brand-50/50 dark:hover:bg-brand-500/10" data-featured-image-dropzone>
+                <input class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" data-featured-image-file />
+                <img class="<%= featuredImageValue ? '' : 'hidden' %> max-h-52 w-full rounded-2xl object-cover" data-featured-image-preview src="<%= featuredImageValue %>" alt="Featured image preview" />
+                <div class="<%= featuredImageValue ? 'mt-3' : '' %> space-y-1 text-xs text-slate-500" data-featured-image-placeholder>
+                  <p>Drag & drop gambar di sini, atau klik tombol upload.</p>
+                  <p>Preview tampil sebelum disimpan. Support JPG, PNG, WEBP, GIF, SVG aman. Maksimal 5 MB.</p>
+                </div>
+              </label>
+              <div class="space-y-3">
+                <label class="label" for="featuredImage">URL media</label>
+                <input class="input" id="featuredImage" name="featuredImage" data-featured-image-input placeholder="/media/..." value="<%= featuredImageValue %>" />
+                <p class="text-xs text-slate-500">Gunakan media yang sudah di-upload atau pilih dari library. Path disimpan secara langsung dan akan tetap responsif pada frontend artikel.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3" data-youtube-field>
+          <div class="flex items-center justify-between gap-3">
+            <label class="label" for="youtubeUrl">YouTube URL</label>
+            <span class="wp-badge">Dynamic label</span>
+          </div>
+          <input
+            class="input"
+            id="youtubeUrl"
+            name="youtubeUrl"
+            data-youtube-url-input
+            placeholder="https://www.youtube.com/watch?v=xxxx"
+            value="<%= youtubeUrlValue %>"
+          />
+          <div>
+            <label class="label" for="youtubeLabelPreset">Video label</label>
+            <div class="grid gap-3 sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)]">
+              <select class="input" id="youtubeLabelPreset" data-youtube-label-preset>
+                <% youtubeLabelPresetOptions.forEach((item) => { %>
+                  <option value="<%= item.value %>" <%= youtubeLabelValue === item.value ? 'selected' : '' %>><%= item.label %></option>
+                <% }) %>
+                <% if (!youtubeLabelPresetOptions.some((item) => item.value === youtubeLabelValue)) { %>
+                  <option value="CUSTOM" selected>Custom</option>
+                <% } %>
+              </select>
+              <input
+                class="input"
+                id="youtubeLabel"
+                name="youtubeLabel"
+                maxlength="160"
+                placeholder="<%= defaultYoutubeLabelValue %>"
+                data-youtube-label-input
+                value="<%= youtubeLabelValue %>"
+              />
+            </div>
+            <p class="mt-2 text-xs text-slate-500">Pilih label cepat atau ubah manual untuk kebutuhan Video Kajian, Video Referensi, Video Terkait, Dokumentasi Video, dan Media Tambahan.</p>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label class="label" for="youtubePosition">Video position</label>
+              <select class="input" id="youtubePosition" name="youtubePosition" data-youtube-position-input>
+                <option value="TOP" <%= youtubePositionValue === 'TOP' ? 'selected' : '' %>>Top artikel</option>
+                <option value="MIDDLE" <%= youtubePositionValue === 'MIDDLE' ? 'selected' : '' %>>Tengah artikel</option>
+                <option value="BOTTOM" <%= youtubePositionValue === 'BOTTOM' ? 'selected' : '' %>>Bawah artikel</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <p class="text-xs text-slate-500">URL divalidasi dan diubah menjadi embed saat tampil publik. Dukungan `youtube.com` dan `youtu.be`.</p>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-4" data-youtube-preview-card>
+            <div class="flex items-start gap-4">
+              <div class="aspect-video w-40 shrink-0 overflow-hidden rounded-xl border border-[color:var(--wp-border)] bg-black/5">
+                <img
+                  class="<%= previewYoutube ? '' : 'hidden' %> h-full w-full object-cover"
+                  data-youtube-preview-thumb
+                  src="<%= previewYoutube ? previewYoutube.thumbnailUrl : '' %>"
+                  alt="YouTube preview"
+                />
+                <div class="<%= previewYoutube ? 'hidden' : '' %> flex h-full w-full items-center justify-center text-xs text-slate-500" data-youtube-preview-empty>
+                  Preview thumbnail
+                </div>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold">Video preview</p>
+                <p class="mt-1 text-xs text-slate-500" data-youtube-preview-text>
+                  <%= previewYoutube ? previewYoutube.watchUrl : 'Tempel URL YouTube untuk menampilkan preview.' %>
+                </p>
+                <% if (previewYoutube) { %>
+                  <a class="mt-3 inline-flex text-sm font-semibold text-brand-600 hover:underline" data-youtube-preview-link href="<%= previewYoutube.embedUrl %>" target="_blank" rel="noopener noreferrer">
+                    Open embed
+                  </a>
+                <% } else { %>
+                  <a class="mt-3 hidden inline-flex text-sm font-semibold text-brand-600 hover:underline" data-youtube-preview-link href="#" target="_blank" rel="noopener noreferrer">
+                    Open embed
+                  </a>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="label" for="status">Status</label>
+        <select class="input" id="status" name="status">
+          <option value="DRAFT" <%= (editingPost?.status || safeValues.status || 'DRAFT') === 'DRAFT' ? 'selected' : '' %>>Draft</option>
+          <option value="PUBLISHED" <%= (editingPost?.status || safeValues.status) === 'PUBLISHED' ? 'selected' : '' %>>Published</option>
+          <option value="ARCHIVED" <%= (editingPost?.status || safeValues.status) === 'ARCHIVED' ? 'selected' : '' %>>Archived</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label" for="excerpt">Excerpt</label>
+        <textarea class="input min-h-28" id="excerpt" name="excerpt"><%= editingPost?.excerpt || safeValues.excerpt || '' %></textarea>
+      </div>
+
+      <div>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <label class="label" for="content">Content</label>
+          <div class="flex flex-wrap gap-2">
+            <button class="wp-btn wp-btn-secondary text-xs" type="button" data-media-picker-open="content">Insert from Media Library</button>
+            <button class="wp-btn wp-btn-primary text-xs" type="button" data-content-media-pick>Upload local media</button>
+          </div>
+        </div>
+        <div class="mt-3 space-y-3 rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-4" data-content-media-field>
+          <label class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] p-5 text-center transition-all duration-200 hover:border-brand-500 hover:bg-brand-50/50 dark:hover:bg-brand-500/10" data-content-media-dropzone>
+            <input class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime,application/pdf" data-content-media-file />
+            <div class="space-y-1 text-xs text-slate-500" data-content-media-placeholder>
+              <p>Drag & drop media ke sini atau klik tombol upload.</p>
+              <p>Preview sebelum upload. Support image, video, dan PDF maksimal 5 MB.</p>
+            </div>
+            <div class="mt-4 hidden w-full max-w-3xl overflow-hidden rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)]" data-content-media-preview-wrap>
+              <div class="p-4" data-content-media-preview></div>
+            </div>
+          </label>
+        </div>
+        <textarea class="input min-h-[28rem]" id="content" name="content"><%- editingPost?.content || safeValues.content || '' %></textarea>
+        <p class="mt-2 text-xs text-slate-500">Media lokal yang dipilih akan di-upload lalu langsung dimasukkan ke editor. Format didukung: image, video, PDF. Batas maksimal 5 MB.</p>
+      </div>
+
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div>
+          <label class="label" for="seoTitle">SEO title</label>
+          <input class="input" id="seoTitle" name="seoTitle" value="<%= editingPost?.seoTitle || safeValues.seoTitle || '' %>" />
+        </div>
+        <div>
+          <label class="label" for="seoDescription">SEO description</label>
+          <input class="input" id="seoDescription" name="seoDescription" value="<%= editingPost?.seoDescription || safeValues.seoDescription || '' %>" />
+        </div>
+      </div>
+
+      <div class="wp-panel-strong p-6" data-faq-builder>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-semibold">FAQ</h3>
+            <p class="mt-1 text-sm text-slate-500">Kelola pertanyaan dan jawaban untuk accordion serta schema FAQ otomatis.</p>
+          </div>
+          <button class="wp-btn wp-btn-secondary" type="button" data-faq-add>Tambah FAQ</button>
+        </div>
+        <textarea class="hidden" name="faqItems" data-faq-store><%- typeof initialFaqItems === 'string' ? initialFaqItems : JSON.stringify(initialFaqItems) %></textarea>
+        <div class="mt-5 space-y-4" data-faq-list></div>
+        <div class="mt-5 flex justify-end">
+          <button class="wp-btn wp-btn-secondary" type="button" data-faq-add>Tambah FAQ</button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button class="wp-btn wp-btn-primary" type="submit"><%= submitLabel || "Save Post" %></button>
+        <% if (editingPost) { %>
+          <a href="/admin/posts" class="wp-btn wp-btn-secondary">Kembali</a>
+        <% } %>
+      </div>
+    </form>
+  </div>
+
+  <div class="fixed inset-0 z-50 hidden" data-media-picker-modal aria-hidden="true">
+    <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" data-media-picker-close></div>
+    <div class="relative mx-auto mt-8 flex h-[calc(100vh-4rem)] w-[min(96vw,88rem)] flex-col overflow-hidden rounded-[1.5rem] border border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] shadow-[0_24px_72px_rgba(15,23,42,0.22)]">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[color:var(--wp-border)] px-5 py-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Media Picker</p>
+          <h3 class="mt-1 text-lg font-semibold">Pilih media dari library</h3>
+          <p class="mt-1 text-sm text-slate-500">Gunakan untuk thumbnail atau insert langsung ke konten. Maksimal upload file: 5 MB.</p>
+        </div>
+        <button type="button" class="wp-btn wp-btn-secondary" data-media-picker-close>Tutup</button>
+      </div>
+
+      <div class="grid gap-4 border-b border-[color:var(--wp-border)] px-5 py-4 lg:grid-cols-[minmax(0,1fr)_minmax(160px,220px)_auto]">
+        <input class="input" type="search" placeholder="Cari media..." data-media-picker-search />
+        <select class="input" data-media-picker-type>
+          <% (typeof mediaTypes !== "undefined" ? mediaTypes : []).forEach((item) => { %>
+            <option value="<%= item.value %>"><%= item.label %></option>
+          <% }) %>
+        </select>
+        <button type="button" class="wp-btn wp-btn-secondary" data-media-picker-refresh>Filter</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-5 py-5">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-media-picker-list></div>
+        <div class="mt-6 flex items-center justify-between gap-3">
+          <p class="text-sm text-slate-500" data-media-picker-summary>Memuat media...</p>
+          <button type="button" class="wp-btn wp-btn-secondary" data-media-picker-loadmore>Load more</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed inset-0 z-50 hidden" data-taxonomy-modal aria-hidden="true">
+    <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" data-taxonomy-modal-close></div>
+    <div class="relative mx-auto mt-24 w-[min(92vw,34rem)] overflow-hidden rounded-[1.5rem] border border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] shadow-[0_24px_72px_rgba(15,23,42,0.22)]">
+      <div class="flex items-start justify-between gap-4 border-b border-[color:var(--wp-border)] px-5 py-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600" data-taxonomy-modal-kicker>Taxonomy</p>
+          <h3 class="mt-1 text-lg font-semibold" data-taxonomy-modal-title>Tambah taxonomy</h3>
+          <p class="mt-1 text-sm text-slate-500" data-taxonomy-modal-description>Masukkan nama baru lalu simpan untuk menambahkan ke daftar.</p>
+        </div>
+        <button type="button" class="wp-btn wp-btn-secondary" data-taxonomy-modal-close>Tutup</button>
+      </div>
+      <form class="space-y-4 p-5" data-taxonomy-modal-form>
+        <input type="hidden" name="kind" data-taxonomy-modal-kind value="category" />
+        <div>
+          <label class="label" for="taxonomyModalNames">Nama</label>
+          <textarea class="input min-h-28" id="taxonomyModalNames" rows="4" placeholder="Technology, Lifestyle, Travel" data-taxonomy-modal-input></textarea>
+          <p class="mt-2 text-xs text-slate-500">Pisahkan beberapa item dengan koma. Item baru akan dibuat langsung saat tombol simpan ditekan.</p>
+        </div>
+        <div class="flex flex-wrap justify-end gap-3">
+          <button type="button" class="wp-btn wp-btn-secondary" data-taxonomy-modal-close>Batal</button>
+          <button type="submit" class="wp-btn wp-btn-primary" data-taxonomy-modal-submit>Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    window.CMS_INTERNAL_LINKS = <%- JSON.stringify((typeof linkOptions !== "undefined" ? linkOptions : []).map((item) => ({
+      title: item.title,
+      value: `/posts/${item.slug}`
+    }))) %>;
+    window.CMS_MEDIA_LIMIT_MB = 5;
+    window.CMS_YOUTUBE_DEFAULT_LABEL = <%- JSON.stringify(defaultYoutubeLabelValue) %>;
+  </script>
+  <%- include("../../partials/tinymce", { csrfToken: typeof csrfToken !== "undefined" ? csrfToken : "" }) %>
+</div>

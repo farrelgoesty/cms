@@ -1,0 +1,31 @@
+<% if (pagination && pagination.totalPages > 1) { %>
+  <nav class="flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--wp-border)] pt-6" aria-label="Pagination">
+    <a
+      class="wp-btn wp-btn-secondary <%= pagination.hasPrev ? '' : 'pointer-events-none opacity-50' %>"
+      href="<%= pagination.hasPrev ? pagination.prevUrl : '#' %>"
+      aria-label="Previous page"
+    >
+      Previous
+    </a>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <% pagination.pages.forEach((item) => { %>
+        <a
+          href="<%= item.url %>"
+          class="wp-btn <%= item.current ? 'wp-btn-primary' : 'wp-btn-pill' %> px-3 py-2 text-sm"
+          <% if (item.current) { %>aria-current="page"<% } %>
+        >
+          <%= item.number %>
+        </a>
+      <% }) %>
+    </div>
+
+    <a
+      class="wp-btn wp-btn-secondary <%= pagination.hasNext ? '' : 'pointer-events-none opacity-50' %>"
+      href="<%= pagination.hasNext ? pagination.nextUrl : '#' %>"
+      aria-label="Next page"
+    >
+      Next
+    </a>
+  </nav>
+<% } %>

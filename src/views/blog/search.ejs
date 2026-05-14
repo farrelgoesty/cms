@@ -1,0 +1,18 @@
+<section class="space-y-6">
+  <div class="wp-panel p-8">
+    <p class="text-xs uppercase tracking-[0.4em] text-brand-600">Search</p>
+    <h1 class="mt-3 text-3xl font-semibold">Hasil pencarian: <%= q || '-' %></h1>
+    <p class="mt-2 text-sm wp-muted"><%= total %> artikel ditemukan</p>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <% posts.forEach((post) => { %>
+      <article class="wp-panel p-6">
+        <h2 class="text-xl font-semibold"><a href="/posts/<%= post.slug %>"><%= post.title %></a></h2>
+        <p class="mt-3 text-sm wp-muted"><%= post.subheadline || post.excerpt || '' %></p>
+      </article>
+    <% }) %>
+  </div>
+
+  <%- include('../partials/pagination', { pagination }) %>
+</section>

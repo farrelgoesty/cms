@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="id" class="h-full">
+  <head>
+    <% const pageMeta = typeof meta !== "undefined" && meta ? meta : {}; %>
+    <% const siteTitle = typeof appName !== "undefined" ? appName : "CMS Blog"; %>
+    <% const year = typeof currentYear !== "undefined" ? currentYear : new Date().getFullYear(); %>
+    <% const pageTitle = typeof title !== "undefined" ? title : ""; %>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= pageMeta.title || pageTitle || siteTitle %></title>
+    <script>
+      document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = "light";
+    </script>
+    <link rel="stylesheet" href="/css/app.css" />
+    <meta name="description" content="<%= pageMeta.description || 'CMS Blog modern' %>" />
+    <% if (pageMeta.robots) { %>
+      <meta name="robots" content="<%= pageMeta.robots %>" />
+    <% } %>
+    <% if (pageMeta.canonical) { %>
+      <link rel="canonical" href="<%= pageMeta.canonical %>" />
+    <% } %>
+    <% if (pageMeta.image) { %>
+      <meta property="og:image" content="<%= pageMeta.image %>" />
+    <% } %>
+    <% if (pageMeta.canonical) { %>
+      <meta property="og:url" content="<%= pageMeta.canonical %>" />
+    <% } %>
+    <meta property="og:title" content="<%= pageMeta.title || pageTitle || siteTitle %>" />
+    <meta property="og:description" content="<%= pageMeta.description || 'CMS Blog modern' %>" />
+    <meta property="og:type" content="<%= pageMeta.type || 'website' %>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<%= pageMeta.title || pageTitle || siteTitle %>" />
+    <meta name="twitter:description" content="<%= pageMeta.description || 'CMS Blog modern' %>" />
+    <% if (pageMeta.image) { %>
+      <meta name="twitter:image" content="<%= pageMeta.image %>" />
+    <% } %>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+            },
+            boxShadow: {
+              soft: "0 1px 1px rgba(0,0,0,0.04)"
+            },
+            colors: {
+              brand: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                200: "#bfdbfe",
+                500: "#2271b1",
+                600: "#135e96",
+                700: "#0f4c78"
+              }
+            }
+          }
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="/js/app.js" defer></script>
+  </head>
+  <body class="min-h-full wp-shell">
+    <script>
+      window.CMS_CSRF_TOKEN = "";
+      window.CMS_INITIAL_NOTICES = <%- JSON.stringify((typeof notice !== "undefined" && notice) ? [{ type: typeof noticeType !== "undefined" && noticeType ? noticeType : "info", message: notice }] : []) %>;
+    </script>
+    <header class="sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-6">
+      <div class="blog-nav-shell mx-auto max-w-7xl">
+        <div class="flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center lg:gap-5 lg:px-5">
+          <a href="/" class="blog-brand-card group">
+            <span class="blog-brand-mark inline-flex h-11 w-11 items-center justify-center bg-gradient-to-br from-brand-500 to-brand-700 text-xl font-bold leading-none text-white shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5">C</span>
+            <span class="blog-brand-copy">
+              <span class="blog-brand-name"><%= siteTitle %></span>
+            </span>
+          </a>
+
+          <form action="/search" method="get" class="w-full lg:ml-auto lg:max-w-xl">
+            <div class="blog-search-card">
+              <label class="relative block">
+                <span class="sr-only">Search articles</span>
+                <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400 transition-colors duration-200">
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 20 20" fill="none">
+                    <path d="M8.5 14a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11Z" stroke="currentColor" stroke-width="1.8" />
+                    <path d="M13 13l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                </span>
+                <input
+                  name="q"
+                  placeholder="Cari artikel..."
+                  class="blog-search-input wp-input w-full border-[color:var(--wp-border)] bg-[color:var(--wp-surface)]/85 pl-11 text-sm shadow-none transition-colors duration-200"
+                />
+              </label>
+            </div>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 lg:px-8">
+      <%- body %>
+    </main>
+
+    <footer class="border-t border-[color:var(--wp-border)] bg-[color:var(--wp-surface)]/90">
+      <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[1.5fr_1fr] lg:px-8">
+        <div class="space-y-3">
+          <div class="flex items-center gap-3 text-lg font-semibold tracking-tight text-slate-950 dark:text-white">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white shadow-sm">C</span>
+            <span><%= siteTitle %></span>
+          </div>
+          <p class="max-w-xl text-sm leading-7 text-slate-500 dark:text-slate-400">
+            Blog modern untuk artikel, komentar, dan workflow editorial yang lebih rapi.
+          </p>
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Clean modern minimal blog style</p>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400">Navigation</h2>
+            <ul class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+              <li><a class="transition-colors hover:text-brand-600" href="/">Home</a></li>
+              <li><a class="transition-colors hover:text-brand-600" href="/search">Search</a></li>
+              <li><a class="transition-colors hover:text-brand-600" href="/admin/login">Admin</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400">Contact</h2>
+            <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+              Kontak dapat ditambahkan lewat halaman admin atau email resmi bila tersedia.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-[color:var(--wp-border)]">
+        <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 text-sm text-slate-500 dark:text-slate-400 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+          <div>Copyright <%= year %> <%= siteTitle %>.</div>
+          <div>Built with Node.js, Express, Prisma, and Tailwind.</div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

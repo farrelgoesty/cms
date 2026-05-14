@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.router = void 0;
+const express_1 = require("express");
+const blog_controller_1 = require("../controllers/blog.controller");
+const media_controller_1 = require("../controllers/media.controller");
+exports.router = (0, express_1.Router)();
+exports.router.get("/media/:id/file", media_controller_1.mediaController.show);
+exports.router.get("/media/:id/thumbnail", media_controller_1.mediaController.thumbnail);
+exports.router.get("/", blog_controller_1.blogController.home);
+exports.router.get("/posts/:slug", blog_controller_1.blogController.showPost);
+exports.router.get("/categories/:slug", blog_controller_1.blogController.category);
+exports.router.get("/tags/:slug", blog_controller_1.blogController.tag);
+exports.router.get("/search", blog_controller_1.blogController.search);
+exports.router.post("/comments", blog_controller_1.blogController.createComment);

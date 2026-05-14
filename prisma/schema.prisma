@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum YoutubePosition {
+  TOP
+  MIDDLE
+  BOTTOM
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  SPAM
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String         @db.VarChar(100)
+  email         String         @unique @db.VarChar(150)
+  password      String         @db.VarChar(255)
+  role          UserRole       @default(ADMIN)
+  avatar        String?        @db.Text
+  bio           String?        @db.LongText
+  refreshTokens RefreshToken[]
+  posts         Post[]
+  media         Media[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique @db.VarChar(255)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+}
+
+model Post {
+  id              String          @id @default(uuid())
+  title           String          @db.VarChar(255)
+  slug            String          @unique @db.VarChar(180)
+  subheadline     String?         @db.VarChar(500)
+  excerpt         String?         @db.LongText
+  faqItems        Json?
+  youtubeUrl      String?         @db.Text
+  youtubeLabel    String?         @db.VarChar(160)
+  youtubePosition YoutubePosition @default(TOP)
+  content         String          @db.LongText
+  featuredImage   String?         @db.Text
+  status          PostStatus      @default(DRAFT)
+  seoTitle        String?         @db.VarChar(255)
+  seoDescription  String?         @db.LongText
+  readingTime     Int             @default(1)
+  viewCount       Int             @default(0)
+  publishedAt     DateTime?
+  authorId        String
+  author          User            @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  comments        Comment[]
+  postCategories  PostCategory[]
+  postTags        PostTag[]
+  media           Media[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([title])
+  @@index([slug])
+}
+
+model Category {
+  id             String         @id @default(uuid())
+  name           String         @db.VarChar(120)
+  slug           String         @unique @db.VarChar(140)
+  postCategories PostCategory[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Tag {
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(120)
+  slug      String    @unique @db.VarChar(140)
+  postTags  PostTag[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model PostCategory {
+  postId     String
+  categoryId String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+  @@index([categoryId])
+}
+
+model PostTag {
+  postId String
+  tagId  String
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+model Comment {
+  id        String        @id @default(uuid())
+  postId    String
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?      @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Comment[]     @relation("CommentThread")
+  name      String        @db.VarChar(100)
+  email     String?       @db.VarChar(150)
+  content   String        @db.LongText
+  status    CommentStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([postId, status])
+}
+
+model Media {
+  id            String   @id @default(uuid())
+  fileName      String   @db.VarChar(255)
+  filePath      String   @db.Text
+  thumbnailPath String?  @db.Text
+  fileData      Bytes?   @db.LongBlob
+  thumbnailData Bytes?   @db.LongBlob
+  mimeType      String   @db.VarChar(100)
+  fileSize      Int
+  width         Int?
+  height        Int?
+  altText       String?  @db.VarChar(255)
+  uploadedById  String
+  uploadedBy    User     @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  postId        String?
+  post          Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+
+  @@index([uploadedById, createdAt])
+  @@index([postId])
+}
