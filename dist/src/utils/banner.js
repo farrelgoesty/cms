@@ -5,9 +5,12 @@ exports.legacyBannerToItems = legacyBannerToItems;
 exports.resolveBannerItems = resolveBannerItems;
 const media_1 = require("./media");
 function isBannerPosition(value) {
-    return value === "TOP" || value === "LEFT" || value === "RIGHT";
+    return value === "TOP" || value === "RIGHT";
 }
 function normalizePosition(value) {
+    if (value === "LEFT") {
+        return "RIGHT";
+    }
     return isBannerPosition(value) ? value : "TOP";
 }
 function normalizeUrl(value) {

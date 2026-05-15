@@ -88,6 +88,7 @@
     };
   })
   .filter(Boolean); %>
+<% const topBannerItems = normalizedBannerItems.filter((item) => item.position === "TOP"); %>
 <% const rightBannerItems = normalizedBannerItems.filter((item) => item.position === "RIGHT"); %>
 <% function renderYoutubeBlock() { %>
   <% if (youtubeEnabled) { %>
@@ -114,8 +115,8 @@
   <% if (item) { %>
     <% const bannerExternal = /^https?:\/\//i.test(item.url || ""); %>
     <% const bannerPlacement = item.position === "RIGHT" ? "side" : "top"; %>
-    <% const bannerAspectClass = bannerPlacement === "top" ? "aspect-[21/9]" : "aspect-square"; %>
-    <section class="wp-panel overflow-hidden <%= bannerPlacement === 'side' ? 'mx-auto max-w-[220px]' : '' %>">
+    <% const bannerAspectClass = bannerPlacement === "top" ? "aspect-[4/1] sm:aspect-[6/1] lg:aspect-[8/1]" : "aspect-[5/4]"; %>
+    <section class="wp-panel overflow-hidden">
       <% if (item.url) { %>
         <a href="<%= item.url %>" <%= bannerExternal ? 'target="_blank" rel="noopener noreferrer"' : '' %> class="block bg-[color:var(--wp-surface-2)]">
           <div class="<%= bannerAspectClass %> w-full overflow-hidden">
@@ -134,7 +135,15 @@
 <% } %>
 
 <article class="space-y-8">
-  <header class="wp-panel-strong overflow-hidden">
+  <% if (topBannerItems.length) { %>
+    <div class="space-y-4">
+      <% topBannerItems.forEach((item, index) => { %>
+        <% renderBannerBlock(item, index); %>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <header class="wp-panel-strong">
     <div class="space-y-6 p-8 lg:p-10">
       <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.34em] text-brand-600">
         <span>Artikel</span>
@@ -171,13 +180,47 @@
         </div>
       </div>
     </div>
+  </header>
 
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,320px)] lg:items-start">
     <% if (post.featuredImage) { %>
-      <div class="border-t border-[color:var(--wp-border)]">
-        <img src="<%= featuredImageUrl || post.featuredImage %>" alt="<%= post.title %>" class="max-h-[32rem] w-full object-cover" loading="eager" />
+      <img src="<%= featuredImageUrl || post.featuredImage %>" alt="<%= post.title %>" class="max-h-[24rem] w-full rounded-3xl object-cover" loading="eager" />
+    <% } else { %>
+      <div class="rounded-3xl border border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-6 py-10 text-sm text-slate-500 dark:text-slate-400">
+        Featured image belum tersedia untuk artikel ini.
       </div>
     <% } %>
-  </header>
+
+    <div class="space-y-6">
+      <div class="wp-panel p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Informasi</p>
+        <dl class="mt-4 space-y-4 text-sm">
+          <div class="flex items-center justify-between gap-4">
+            <dt class="text-slate-500 dark:text-slate-400">Published</dt>
+            <dd class="font-medium text-slate-950 dark:text-white"><%= formattedDate %></dd>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <dt class="text-slate-500 dark:text-slate-400">Reading time</dt>
+            <dd class="font-medium text-slate-950 dark:text-white"><%= post.readingTime %> min</dd>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <dt class="text-slate-500 dark:text-slate-400">Views</dt>
+            <dd class="font-medium text-slate-950 dark:text-white"><%= post.viewCount %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="wp-panel p-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Quick Jump</p>
+        <div class="mt-4 space-y-2">
+          <a href="#comments" class="block rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:text-slate-200">Lompat ke komentar</a>
+          <% if (safeFaqItems.length) { %>
+            <a href="#faq" class="block rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:text-slate-200">Lompat ke FAQ</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <% if (youtubePosition === "TOP") { %>
     <div><% renderYoutubeBlock(); %></div>
@@ -359,34 +402,6 @@
     </div>
 
     <aside class="space-y-6 lg:sticky lg:top-24 lg:self-start">
-      <div class="wp-panel p-6">
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Informasi</p>
-        <dl class="mt-4 space-y-4 text-sm">
-          <div class="flex items-center justify-between gap-4">
-            <dt class="text-slate-500 dark:text-slate-400">Published</dt>
-            <dd class="font-medium text-slate-950 dark:text-white"><%= formattedDate %></dd>
-          </div>
-          <div class="flex items-center justify-between gap-4">
-            <dt class="text-slate-500 dark:text-slate-400">Reading time</dt>
-            <dd class="font-medium text-slate-950 dark:text-white"><%= post.readingTime %> min</dd>
-          </div>
-          <div class="flex items-center justify-between gap-4">
-            <dt class="text-slate-500 dark:text-slate-400">Views</dt>
-            <dd class="font-medium text-slate-950 dark:text-white"><%= post.viewCount %></dd>
-          </div>
-        </dl>
-      </div>
-
-      <div class="wp-panel p-6">
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Quick Jump</p>
-        <div class="mt-4 space-y-2">
-          <a href="#comments" class="block rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:text-slate-200">Lompat ke komentar</a>
-          <% if (safeFaqItems.length) { %>
-            <a href="#faq" class="block rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:text-slate-200">Lompat ke FAQ</a>
-          <% } %>
-        </div>
-      </div>
-
       <div class="wp-panel p-6" data-article-share data-share-url="<%= shareUrl %>" data-share-title="<%= shareTitle %>" data-share-text="<%= shareText %>">
         <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Bagikan artikel</p>
         <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Kirim artikel ke platform mana pun. Preview share tetap membawa thumbnail dari metadata halaman.</p>

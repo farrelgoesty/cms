@@ -10,7 +10,7 @@ const faqItemSchema = zod_1.z.object({
 const bannerItemSchema = zod_1.z.object({
     image: zod_1.z.string().trim().min(1).max(2048),
     url: zod_1.z.string().trim().max(2048).optional().or(zod_1.z.literal("")),
-    position: zod_1.z.enum(["TOP", "LEFT", "RIGHT"]).default("TOP")
+    position: zod_1.z.enum(["TOP", "RIGHT"]).default("TOP")
 });
 function parseJsonValue(value) {
     if (typeof value !== "string") {
@@ -39,7 +39,7 @@ exports.postSchema = zod_1.z.object({
     featuredImage: zod_1.z.string().trim().optional().or(zod_1.z.literal("")),
     bannerImage: zod_1.z.string().trim().optional().or(zod_1.z.literal("")),
     bannerUrl: zod_1.z.string().trim().max(2048).optional().or(zod_1.z.literal("")),
-    bannerPosition: zod_1.z.enum(["TOP", "LEFT", "RIGHT"]).default("TOP"),
+    bannerPosition: zod_1.z.enum(["TOP", "RIGHT"]).default("TOP"),
     bannerItems: zod_1.z.preprocess(parseJsonValue, zod_1.z.array(bannerItemSchema).max(10)),
     seoTitle: zod_1.z.string().trim().optional().or(zod_1.z.literal("")),
     seoDescription: zod_1.z.string().trim().optional().or(zod_1.z.literal("")),

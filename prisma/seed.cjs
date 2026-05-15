@@ -1,10 +1,13 @@
 const bcrypt = require("bcrypt");
-const { PrismaClient, CommentStatus, PostStatus, UserRole } = require("@prisma/client");
+const { PrismaClient, BannerPosition, CommentStatus, PostStatus, UserRole, YoutubePosition } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
 const demoMediaPath = "/uploads/2026/05/10dbd22d-5644-4174-ab95-d055485e73be.webp";
 const demoThumbPath = "/uploads/2026/05/10dbd22d-5644-4174-ab95-d055485e73be-thumb.webp";
+const demoBannerPrimary = "/uploads/2026/05/banner-primary.webp";
+const demoBannerSecondary = "/uploads/2026/05/banner-secondary.webp";
+const demoBannerAnalytics = "/uploads/2026/05/banner-analytics.webp";
 
 const demoCategories = [
   { name: "SEO", slug: "seo" },
@@ -38,6 +41,16 @@ const demoPosts = [
     seoTitle: "Panduan SEO On-Page untuk CMS Blog",
     seoDescription:
       "Artikel demo SEO on-page dengan struktur heading, internal link, dan copy natural untuk mengisi homepage CMS blog.",
+    youtubeUrl: "https://www.youtube.com/watch?v=ysz5S6PUM-U",
+    youtubeLabel: "Lihat ringkasan strategi on-page",
+    youtubePosition: YoutubePosition.TOP,
+    bannerItems: [
+      {
+        image: demoBannerPrimary,
+        url: "/blog/cara-membuat-struktur-kategori-dan-tag-yang-rapi",
+        position: BannerPosition.RIGHT
+      }
+    ],
     status: PostStatus.PUBLISHED,
     publishedAt: new Date("2026-05-01T08:00:00.000Z"),
     readingTime: 4,
@@ -65,6 +78,16 @@ const demoPosts = [
     seoTitle: "Struktur kategori dan tag untuk SEO",
     seoDescription:
       "Contoh konten demo tentang cara menyusun kategori dan tag agar blog lebih rapi, mudah dinavigasi, dan SEO friendly.",
+    youtubeUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+    youtubeLabel: "Video singkat struktur kategori dan tag",
+    youtubePosition: YoutubePosition.MIDDLE,
+    bannerItems: [
+      {
+        image: demoBannerSecondary,
+        url: "/blog/strategi-internal-linking-untuk-topik-yang-saling-terhubung",
+        position: BannerPosition.TOP
+      }
+    ],
     status: PostStatus.PUBLISHED,
     publishedAt: new Date("2026-04-28T08:00:00.000Z"),
     readingTime: 4,
@@ -82,6 +105,16 @@ const demoPosts = [
     seoTitle: "Optimasi kecepatan halaman blog modern",
     seoDescription:
       "Artikel demo tentang optimasi performa, gambar, dan stabilitas layout untuk blog modern yang SEO friendly.",
+    youtubeUrl: "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+    youtubeLabel: "Demo cepat optimasi performa konten",
+    youtubePosition: YoutubePosition.BOTTOM,
+    bannerItems: [
+      {
+        image: demoBannerPrimary,
+        url: "/blog/panduan-desain-admin-yang-nyaman-untuk-tim-konten",
+        position: BannerPosition.RIGHT
+      }
+    ],
     status: PostStatus.PUBLISHED,
     publishedAt: new Date("2026-04-24T08:00:00.000Z"),
     readingTime: 5,
@@ -99,6 +132,16 @@ const demoPosts = [
     seoTitle: "Checklist konten evergreen untuk traffic organik",
     seoDescription:
       "Artikel demo tentang cara membuat konten evergreen yang relevan, mudah diperbarui, dan mendukung traffic organik.",
+    youtubeUrl: "https://www.youtube.com/watch?v=ScMzIvxBSi4",
+    youtubeLabel: "Penjelasan konsep evergreen content",
+    youtubePosition: YoutubePosition.MIDDLE,
+    bannerItems: [
+      {
+        image: demoBannerAnalytics,
+        url: "/blog/optimasi-kecepatan-halaman-untuk-blog-modern",
+        position: BannerPosition.TOP
+      }
+    ],
     status: PostStatus.PUBLISHED,
     publishedAt: new Date("2026-04-19T08:00:00.000Z"),
     readingTime: 4,
@@ -126,6 +169,16 @@ const demoPosts = [
     seoTitle: "Strategi internal linking yang efektif",
     seoDescription:
       "Contoh artikel demo yang menjelaskan internal linking, anchor text, dan hubungan antar topik untuk SEO.",
+    youtubeUrl: "https://www.youtube.com/watch?v=HluANRwPyNo",
+    youtubeLabel: "Tonton contoh alur internal linking",
+    youtubePosition: YoutubePosition.TOP,
+    bannerItems: [
+      {
+        image: demoBannerSecondary,
+        url: "/blog/panduan-seo-on-page-untuk-cms-blog-yang-baru-diisi",
+        position: BannerPosition.RIGHT
+      }
+    ],
     status: PostStatus.PUBLISHED,
     publishedAt: new Date("2026-04-14T08:00:00.000Z"),
     readingTime: 4,
@@ -143,6 +196,16 @@ const demoPosts = [
     seoTitle: "Desain admin yang nyaman untuk tim konten",
     seoDescription:
       "Artikel demo tentang desain admin yang nyaman, alur kerja editorial, dan struktur panel yang mendukung produktivitas.",
+    youtubeUrl: "https://www.youtube.com/watch?v=M7lc1UVf-VE",
+    youtubeLabel: "Walkthrough panel admin konten",
+    youtubePosition: YoutubePosition.BOTTOM,
+    bannerItems: [
+      {
+        image: demoBannerAnalytics,
+        url: "/blog/checklist-konten-evergreen-untuk-traffic-organik",
+        position: BannerPosition.TOP
+      }
+    ],
     status: PostStatus.PUBLISHED,
     publishedAt: new Date("2026-04-09T08:00:00.000Z"),
     readingTime: 4,
@@ -159,11 +222,47 @@ const demoPosts = [
       "<p>Ini contoh draft untuk menguji tampilan artikel yang belum publish.</p><p>Isi draft tetap singkat agar perbedaan antara draft dan published mudah terlihat pada dashboard.</p>",
     seoTitle: "Draft ide konten landing page SEO",
     seoDescription: "Contoh artikel draft untuk panel admin dan workflow editorial.",
+    youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    youtubeLabel: "Referensi video draft landing page",
+    youtubePosition: YoutubePosition.TOP,
+    bannerItems: [
+      {
+        image: demoBannerPrimary,
+        url: "/blog/panduan-seo-on-page-untuk-cms-blog-yang-baru-diisi",
+        position: BannerPosition.TOP
+      }
+    ],
     status: PostStatus.DRAFT,
     publishedAt: null,
     readingTime: 2,
     categories: ["seo"],
     tags: ["keyword-research", "ux-writing"]
+  },
+  {
+    title: "Arsip: Audit CTA Blog Q1 yang Sudah Ditutup",
+    slug: "arsip-audit-cta-blog-q1-yang-sudah-ditutup",
+    subheadline: "Contoh artikel archived agar filter status dan dashboard punya data yang lebih lengkap.",
+    excerpt:
+      "Artikel arsip dipakai untuk menguji status ARCHIVED, histori konten lama, dan tampilan daftar post yang lebih realistis.",
+    content:
+      "<p>Konten ini tidak lagi aktif dipromosikan, tetapi masih berguna sebagai arsip internal dan pembanding untuk iterasi berikutnya.</p><h2>Kenapa perlu arsip?</h2><ul><li>Tim bisa meninjau eksperimen lama</li><li>Dashboard editorial punya distribusi status yang realistis</li><li>Data demo menjadi lebih representatif</li></ul><p>Status archived membantu membedakan konten lama yang tidak lagi jadi fokus, tanpa harus menghapusnya dari database.</p>",
+    seoTitle: "Arsip audit CTA blog Q1",
+    seoDescription: "Contoh artikel archived untuk melengkapi workflow editorial di CMS blog.",
+    youtubeUrl: "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+    youtubeLabel: "Catatan audit CTA kuartal pertama",
+    youtubePosition: YoutubePosition.MIDDLE,
+    bannerItems: [
+      {
+        image: demoBannerSecondary,
+        url: "/blog/panduan-desain-admin-yang-nyaman-untuk-tim-konten",
+        position: BannerPosition.RIGHT
+      }
+    ],
+    status: PostStatus.ARCHIVED,
+    publishedAt: new Date("2026-03-30T08:00:00.000Z"),
+    readingTime: 3,
+    categories: ["analytics", "content-strategy"],
+    tags: ["ux-writing", "content-cluster"]
   }
 ];
 
@@ -195,8 +294,15 @@ async function ensurePost(authorId, post, categoryIds, tagIds) {
     subheadline: post.subheadline,
     excerpt: post.excerpt,
     faqItems: post.faqItems || [],
+    youtubeUrl: "youtubeUrl" in post ? post.youtubeUrl : null,
+    youtubeLabel: "youtubeLabel" in post ? post.youtubeLabel : null,
+    youtubePosition: "youtubePosition" in post ? post.youtubePosition : YoutubePosition.TOP,
     content: post.content,
     featuredImage: demoMediaPath,
+    bannerImage: "bannerItems" in post ? post.bannerItems[0]?.image ?? null : null,
+    bannerUrl: "bannerItems" in post ? post.bannerItems[0]?.url ?? null : null,
+    bannerPosition: "bannerItems" in post ? post.bannerItems[0]?.position ?? BannerPosition.TOP : BannerPosition.TOP,
+    bannerItems: "bannerItems" in post ? post.bannerItems : [],
     seoTitle: post.seoTitle,
     seoDescription: post.seoDescription,
     status: post.status,
@@ -253,13 +359,37 @@ async function main() {
     update: {
       name: "Administrator",
       password: hashed,
-      role: UserRole.ADMIN
+      role: UserRole.ADMIN,
+      avatar: demoMediaPath,
+      bio: "Administrator demo untuk CMS blog. Akun ini dipakai untuk mengelola artikel, media, kategori, tag, dan alur editorial."
     },
     create: {
       name: "Administrator",
       email: adminEmail,
       password: hashed,
-      role: UserRole.ADMIN
+      role: UserRole.ADMIN,
+      avatar: demoMediaPath,
+      bio: "Administrator demo untuk CMS blog. Akun ini dipakai untuk mengelola artikel, media, kategori, tag, dan alur editorial."
+    }
+  });
+
+  const editorPassword = await bcrypt.hash("Editor123!", 12);
+  await prisma.user.upsert({
+    where: { email: "editor@cms.local" },
+    update: {
+      name: "Editor Konten",
+      password: editorPassword,
+      role: UserRole.EDITOR,
+      avatar: demoBannerSecondary,
+      bio: "Akun editor demo untuk menguji role selain admin dan simulasi workflow tim konten."
+    },
+    create: {
+      name: "Editor Konten",
+      email: "editor@cms.local",
+      password: editorPassword,
+      role: UserRole.EDITOR,
+      avatar: demoBannerSecondary,
+      bio: "Akun editor demo untuk menguji role selain admin dan simulasi workflow tim konten."
     }
   });
 
@@ -336,6 +466,81 @@ async function main() {
       mimeType: "image/webp",
       fileSize: 102768,
       altText: "CMS demo image",
+      uploadedById: admin.id
+    }
+  });
+
+  await prisma.media.upsert({
+    where: {
+      id: "seed-media-banner-primary"
+    },
+    update: {
+      fileName: "banner-primary.webp",
+      filePath: demoBannerPrimary,
+      thumbnailPath: demoBannerPrimary,
+      mimeType: "image/webp",
+      fileSize: 96384,
+      altText: "Banner primary demo",
+      uploadedById: admin.id
+    },
+    create: {
+      id: "seed-media-banner-primary",
+      fileName: "banner-primary.webp",
+      filePath: demoBannerPrimary,
+      thumbnailPath: demoBannerPrimary,
+      mimeType: "image/webp",
+      fileSize: 96384,
+      altText: "Banner primary demo",
+      uploadedById: admin.id
+    }
+  });
+
+  await prisma.media.upsert({
+    where: {
+      id: "seed-media-banner-secondary"
+    },
+    update: {
+      fileName: "banner-secondary.webp",
+      filePath: demoBannerSecondary,
+      thumbnailPath: demoBannerSecondary,
+      mimeType: "image/webp",
+      fileSize: 88712,
+      altText: "Banner secondary demo",
+      uploadedById: admin.id
+    },
+    create: {
+      id: "seed-media-banner-secondary",
+      fileName: "banner-secondary.webp",
+      filePath: demoBannerSecondary,
+      thumbnailPath: demoBannerSecondary,
+      mimeType: "image/webp",
+      fileSize: 88712,
+      altText: "Banner secondary demo",
+      uploadedById: admin.id
+    }
+  });
+
+  await prisma.media.upsert({
+    where: {
+      id: "seed-media-banner-analytics"
+    },
+    update: {
+      fileName: "banner-analytics.webp",
+      filePath: demoBannerAnalytics,
+      thumbnailPath: demoBannerAnalytics,
+      mimeType: "image/webp",
+      fileSize: 91520,
+      altText: "Banner analytics demo",
+      uploadedById: admin.id
+    },
+    create: {
+      id: "seed-media-banner-analytics",
+      fileName: "banner-analytics.webp",
+      filePath: demoBannerAnalytics,
+      thumbnailPath: demoBannerAnalytics,
+      mimeType: "image/webp",
+      fileSize: 91520,
+      altText: "Banner analytics demo",
       uploadedById: admin.id
     }
   });
