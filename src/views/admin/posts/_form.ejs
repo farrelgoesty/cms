@@ -65,7 +65,7 @@
     >
       <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
 
-      <div class="grid gap-5 lg:grid-cols-2">
+      <div class="grid items-start gap-5 lg:grid-cols-2 lg:items-stretch">
         <div>
           <label class="label" for="title">Title</label>
           <input data-slug-source class="input" id="title" name="title" value="<%= editingPost?.title || safeValues.title || '' %>" maxlength="255" required />
@@ -81,7 +81,7 @@
           <p class="mt-2 text-xs text-slate-500">Teks ini membantu readability dan tetap alami untuk pembaca.</p>
         </div>
 
-        <div class="space-y-3">
+        <div class="flex h-full flex-col gap-3 rounded-[1.75rem] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.92))] p-4 shadow-sm dark:border-slate-800" data-taxonomy-panel="category" data-taxonomy-page-size="8">
           <div class="flex items-center justify-between gap-3">
             <div>
               <label class="label">Categories</label>
@@ -92,62 +92,85 @@
               <button class="wp-btn wp-btn-primary" type="button" data-taxonomy-modal-open="category">Tambah kategori</button>
             </div>
           </div>
-          <div class="grid gap-3 sm:grid-cols-2" data-taxonomy-list="category">
-            <% if (!categories.length) { %>
-              <div class="rounded-2xl border border-dashed border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm text-slate-500 dark:border-slate-800" data-taxonomy-empty="category">
-                Belum ada category. Tambahkan category baru lewat tombol di atas.
-              </div>
-            <% } %>
-            <% categories.forEach((category) => { %>
-              <div
-                class="taxonomy-item flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800"
-                data-taxonomy-item="true"
-                data-taxonomy-kind="category"
-                data-taxonomy-id="<%= category.id %>"
-                data-taxonomy-name="<%= category.name %>"
-                data-taxonomy-slug="<%= category.slug %>"
-              >
-                <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
-                  <input
-                    type="checkbox"
-                    name="categoryIds"
-                    value="<%= category.id %>"
-                    class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
-                    <%= selectedCategoryIds.includes(category.id) ? 'checked' : '' %>
-                  />
-                  <span class="truncate font-medium text-slate-900 dark:text-slate-900" data-taxonomy-item-name><%= category.name %></span>
-                </label>
-                <div class="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
-                    data-taxonomy-edit
-                    data-taxonomy-kind="category"
-                    data-taxonomy-id="<%= category.id %>"
-                    data-taxonomy-name="<%= category.name %>"
-                    data-taxonomy-slug="<%= category.slug %>"
-                    title="Edit"
-                  >
-                    <i class="fas fa-pen-to-square text-xs"></i>
-                  </button>
-                  <button
-                    type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 shadow-sm ring-1 ring-red-100 transition hover:bg-red-100"
-                    data-taxonomy-delete
-                    data-taxonomy-kind="category"
-                    data-taxonomy-id="<%= category.id %>"
-                    data-taxonomy-name="<%= category.name %>"
-                    title="Hapus"
-                  >
-                    <i class="fas fa-trash text-xs"></i>
-                  </button>
+          <div class="rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm dark:border-slate-800">
+            <label class="sr-only" for="taxonomy-search-category">Cari kategori</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                <i class="fas fa-search text-xs"></i>
+              </span>
+              <input id="taxonomy-search-category" type="search" class="input pl-10" placeholder="Cari kategori..." data-taxonomy-search="category" autocomplete="off" />
+            </div>
+          </div>
+          <div class="flex min-h-[24rem] flex-1 flex-col overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm sm:min-h-[26rem] lg:min-h-[31rem] dark:border-slate-800">
+            <div class="grid min-h-[19rem] flex-1 auto-rows-max content-start gap-3 p-3 sm:min-h-[21rem] sm:grid-cols-2 lg:min-h-[26rem]" data-taxonomy-list="category">
+              <% if (!categories.length) { %>
+                <div class="rounded-2xl border border-dashed border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm text-slate-500 dark:border-slate-800" data-taxonomy-empty="category">
+                  Belum ada category. Tambahkan category baru lewat tombol di atas.
                 </div>
+              <% } %>
+              <% categories.forEach((category) => { %>
+                <div
+                  class="taxonomy-item flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.9),rgba(241,245,249,0.7))] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800"
+                  data-taxonomy-item="true"
+                  data-taxonomy-kind="category"
+                  data-taxonomy-id="<%= category.id %>"
+                  data-taxonomy-name="<%= category.name %>"
+                  data-taxonomy-slug="<%= category.slug %>"
+                >
+                  <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      name="categoryIds"
+                      value="<%= category.id %>"
+                      class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
+                      <%= selectedCategoryIds.includes(category.id) ? 'checked' : '' %>
+                    />
+                    <span class="truncate font-medium text-slate-900 dark:text-slate-900" data-taxonomy-item-name><%= category.name %></span>
+                  </label>
+                  <div class="flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+                      data-taxonomy-edit
+                      data-taxonomy-kind="category"
+                      data-taxonomy-id="<%= category.id %>"
+                      data-taxonomy-name="<%= category.name %>"
+                      data-taxonomy-slug="<%= category.slug %>"
+                      title="Edit"
+                    >
+                      <i class="fas fa-pen-to-square text-xs"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 shadow-sm ring-1 ring-red-100 transition hover:bg-red-100"
+                      data-taxonomy-delete
+                      data-taxonomy-kind="category"
+                      data-taxonomy-id="<%= category.id %>"
+                      data-taxonomy-name="<%= category.name %>"
+                      title="Hapus"
+                    >
+                      <i class="fas fa-trash text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+            <div class="mt-auto flex min-h-[4.75rem] flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/90 px-4 py-3 text-sm text-slate-600 sm:min-h-[5rem] dark:border-slate-800" data-taxonomy-pagination="category">
+              <div class="space-y-1">
+                <div class="font-medium">
+                  Halaman <span data-taxonomy-page-current="category">1</span> dari <span data-taxonomy-page-total="category">1</span>
+                </div>
+                <div class="text-xs text-slate-500" data-taxonomy-results="category">Menampilkan 0 item</div>
               </div>
-            <% }) %>
+              <div class="flex items-center gap-2">
+                <button type="button" class="wp-btn wp-btn-secondary px-3 py-2 text-xs" data-taxonomy-page-prev="category">Sebelumnya</button>
+                <button type="button" class="wp-btn wp-btn-secondary px-3 py-2 text-xs" data-taxonomy-page-next="category">Berikutnya</button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="space-y-3">
+        <div class="flex h-full flex-col gap-3 rounded-[1.75rem] border border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.92))] p-4 shadow-sm dark:border-slate-800" data-taxonomy-panel="tag" data-taxonomy-page-size="8">
           <div class="flex items-center justify-between gap-3">
             <div>
               <label class="label">Tags</label>
@@ -158,58 +181,81 @@
               <button class="wp-btn wp-btn-primary" type="button" data-taxonomy-modal-open="tag">Tambah tag</button>
             </div>
           </div>
-          <div class="grid gap-3 sm:grid-cols-2" data-taxonomy-list="tag">
-            <% if (!tags.length) { %>
-              <div class="rounded-2xl border border-dashed border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm text-slate-500 dark:border-slate-800" data-taxonomy-empty="tag">
-                Belum ada tag. Tambahkan tag baru lewat tombol di atas.
-              </div>
-            <% } %>
-            <% tags.forEach((tag) => { %>
-              <div
-                class="taxonomy-item flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800"
-                data-taxonomy-item="true"
-                data-taxonomy-kind="tag"
-                data-taxonomy-id="<%= tag.id %>"
-                data-taxonomy-name="<%= tag.name %>"
-                data-taxonomy-slug="<%= tag.slug %>"
-              >
-                <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
-                  <input
-                    type="checkbox"
-                    name="tagIds"
-                    value="<%= tag.id %>"
-                    class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
-                    <%= selectedTagIds.includes(tag.id) ? 'checked' : '' %>
-                  />
-                  <span class="truncate font-medium text-slate-900 dark:text-slate-900" data-taxonomy-item-name><%= tag.name %></span>
-                </label>
-                <div class="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
-                    data-taxonomy-edit
-                    data-taxonomy-kind="tag"
-                    data-taxonomy-id="<%= tag.id %>"
-                    data-taxonomy-name="<%= tag.name %>"
-                    data-taxonomy-slug="<%= tag.slug %>"
-                    title="Edit"
-                  >
-                    <i class="fas fa-pen-to-square text-xs"></i>
-                  </button>
-                  <button
-                    type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 shadow-sm ring-1 ring-red-100 transition hover:bg-red-100"
-                    data-taxonomy-delete
-                    data-taxonomy-kind="tag"
-                    data-taxonomy-id="<%= tag.id %>"
-                    data-taxonomy-name="<%= tag.name %>"
-                    title="Hapus"
-                  >
-                    <i class="fas fa-trash text-xs"></i>
-                  </button>
+          <div class="rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm dark:border-slate-800">
+            <label class="sr-only" for="taxonomy-search-tag">Cari tag</label>
+            <div class="relative">
+              <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                <i class="fas fa-search text-xs"></i>
+              </span>
+              <input id="taxonomy-search-tag" type="search" class="input pl-10" placeholder="Cari tag..." data-taxonomy-search="tag" autocomplete="off" />
+            </div>
+          </div>
+          <div class="flex min-h-[24rem] flex-1 flex-col overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm sm:min-h-[26rem] lg:min-h-[31rem] dark:border-slate-800">
+            <div class="grid min-h-[19rem] flex-1 auto-rows-max content-start gap-3 p-3 sm:min-h-[21rem] sm:grid-cols-2 lg:min-h-[26rem]" data-taxonomy-list="tag">
+              <% if (!tags.length) { %>
+                <div class="rounded-2xl border border-dashed border-slate-200 bg-[color:var(--wp-surface-2)] px-4 py-3 text-sm text-slate-500 dark:border-slate-800" data-taxonomy-empty="tag">
+                  Belum ada tag. Tambahkan tag baru lewat tombol di atas.
                 </div>
+              <% } %>
+              <% tags.forEach((tag) => { %>
+                <div
+                  class="taxonomy-item flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.9),rgba(241,245,249,0.7))] px-4 py-3 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800"
+                  data-taxonomy-item="true"
+                  data-taxonomy-kind="tag"
+                  data-taxonomy-id="<%= tag.id %>"
+                  data-taxonomy-name="<%= tag.name %>"
+                  data-taxonomy-slug="<%= tag.slug %>"
+                >
+                  <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      name="tagIds"
+                      value="<%= tag.id %>"
+                      class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600"
+                      <%= selectedTagIds.includes(tag.id) ? 'checked' : '' %>
+                    />
+                    <span class="truncate font-medium text-slate-900 dark:text-slate-900" data-taxonomy-item-name><%= tag.name %></span>
+                  </label>
+                  <div class="flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+                      data-taxonomy-edit
+                      data-taxonomy-kind="tag"
+                      data-taxonomy-id="<%= tag.id %>"
+                      data-taxonomy-name="<%= tag.name %>"
+                      data-taxonomy-slug="<%= tag.slug %>"
+                      title="Edit"
+                    >
+                      <i class="fas fa-pen-to-square text-xs"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 shadow-sm ring-1 ring-red-100 transition hover:bg-red-100"
+                      data-taxonomy-delete
+                      data-taxonomy-kind="tag"
+                      data-taxonomy-id="<%= tag.id %>"
+                      data-taxonomy-name="<%= tag.name %>"
+                      title="Hapus"
+                    >
+                      <i class="fas fa-trash text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+            <div class="mt-auto flex min-h-[4.75rem] flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/90 px-4 py-3 text-sm text-slate-600 sm:min-h-[5rem] dark:border-slate-800" data-taxonomy-pagination="tag">
+              <div class="space-y-1">
+                <div class="font-medium">
+                  Halaman <span data-taxonomy-page-current="tag">1</span> dari <span data-taxonomy-page-total="tag">1</span>
+                </div>
+                <div class="text-xs text-slate-500" data-taxonomy-results="tag">Menampilkan 0 item</div>
               </div>
-            <% }) %>
+              <div class="flex items-center gap-2">
+                <button type="button" class="wp-btn wp-btn-secondary px-3 py-2 text-xs" data-taxonomy-page-prev="tag">Sebelumnya</button>
+                <button type="button" class="wp-btn wp-btn-secondary px-3 py-2 text-xs" data-taxonomy-page-next="tag">Berikutnya</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
