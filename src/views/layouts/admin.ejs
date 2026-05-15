@@ -143,10 +143,16 @@
       .admin-sidebar .wp-nav-link {
         justify-content: flex-start;
       }
+
+      @media (max-width: 1023px) {
+        .admin-topbar-card {
+          border-radius: 1.25rem;
+        }
+      }
     </style>
 </head>
 
-<body class="h-full wp-shell bg-gradient-to-br from-slate-50 via-white to-slate-100 font-sans">
+<body class="h-full overflow-x-hidden wp-shell bg-gradient-to-br from-slate-50 via-white to-slate-100 font-sans">
   <!-- Toast Container -->
   <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 
@@ -160,12 +166,28 @@
     <% } else { %>
       <!-- Admin Dashboard Layout -->
       <div class="flex min-h-screen">
+        <button
+          type="button"
+          class="fixed left-4 top-4 z-50 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/95 px-4 py-2 text-sm font-semibold text-slate-700 shadow-lg backdrop-blur lg:hidden"
+          data-admin-sidebar-open
+          aria-controls="admin-sidebar"
+          aria-expanded="false"
+        >
+          <i class="fas fa-bars"></i>
+          Menu
+        </button>
+
+        <div class="fixed inset-0 z-40 hidden bg-slate-950/40 backdrop-blur-[1px] lg:hidden" data-admin-sidebar-overlay></div>
+
         <!-- SIDEBAR PREMIUM WITH ENHANCED ICONS -->
         <aside
-          class="admin-sidebar hidden w-80 flex-col border-r border-slate-200/60 bg-white/90 backdrop-blur-xl px-5 py-6 shadow-2xl transition-all duration-300 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:overflow-y-auto">
+          id="admin-sidebar"
+          data-admin-sidebar
+          class="admin-sidebar fixed inset-y-0 left-0 z-50 flex w-[88vw] max-w-xs -translate-x-full flex-col overflow-y-auto border-r border-slate-200/60 bg-white/95 px-5 py-6 shadow-2xl backdrop-blur-xl transition-transform duration-300 sm:w-80 lg:translate-x-0">
 
-          <!-- BRAND SECTION - Kotak Putih dengan Logo Biru -->
-          <div class="mb-8 rounded-2xl bg-white p-5 shadow-lg ring-1 ring-slate-200/60">
+          <div class="mb-6 flex items-start justify-between gap-3 lg:mb-8">
+            <!-- BRAND SECTION - Kotak Putih dengan Logo Biru -->
+            <div class="flex-1 rounded-2xl bg-white p-5 shadow-lg ring-1 ring-slate-200/60">
             <div class="flex items-center gap-3">
               <!-- Logo Kotak Biru dengan Huruf C Putih -->
               <div
@@ -182,6 +204,16 @@
                 </div>
               </div>
             </div>
+            </div>
+
+            <button
+              type="button"
+              class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm lg:hidden"
+              data-admin-sidebar-close
+              aria-label="Tutup sidebar"
+            >
+              <i class="fas fa-xmark"></i>
+            </button>
           </div>
 
           <!-- Navigation Menu dengan Icon Premium -->
@@ -329,13 +361,13 @@
         </aside>
 
         <!-- MAIN CONTENT AREA -->
-        <div class="flex-1 lg:pl-80">
+        <div class="min-w-0 flex-1 lg:pl-80">
           <!-- HEADER MODERN -->
-          <header class="sticky top-0 z-30 px-4 pt-4 sm:px-6 lg:px-8">
+          <header class="sticky top-0 z-30 px-4 pt-16 sm:px-6 sm:pt-4 lg:px-8">
             <div class="admin-topbar-card relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/90 px-5 py-4 shadow-[0_16px_36px_rgba(15,23,42,0.08)] backdrop-blur-xl lg:px-7 lg:py-5">
               <div class="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-brand-100/70 to-transparent"></div>
               <div class="absolute -bottom-10 -left-10 h-28 w-28 rounded-full border border-brand-200/60 bg-brand-50/40"></div>
-              <div class="relative flex items-center justify-between gap-4">
+              <div class="relative flex items-start justify-between gap-4">
                 <div class="space-y-1">
                   <p class="text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
                     <i class="fas fa-shield-alt mr-1.5 text-brand-600"></i> SECURE ACCESS
@@ -348,38 +380,8 @@
             </div>
           </header>
 
-          <!-- MOBILE NAVIGATION PILLS -->
-          <div class="sticky top-[73px] z-20 bg-slate-50/95 px-4 py-3 backdrop-blur-md shadow-sm lg:hidden">
-            <div class="flex gap-2 overflow-x-auto pb-1">
-              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath === '/admin/dashboard' ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
-                href="/admin/dashboard">
-                <i class="fas fa-chart-line mr-1"></i> Dashboard
-              </a>
-              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/posts') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
-                href="/admin/posts">
-                <i class="fas fa-newspaper mr-1"></i> Posts
-              </a>
-              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/categories') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
-                href="/admin/categories">
-                <i class="fas fa-folder-tree mr-1"></i> Categories
-              </a>
-              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/tags') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
-                href="/admin/tags">
-                <i class="fas fa-tags mr-1"></i> Tags
-              </a>
-              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/media') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
-                href="/admin/media">
-                <i class="fas fa-images mr-1"></i> Media
-              </a>
-              <a class="whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/comments') ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 shadow-sm' %>"
-                href="/admin/comments">
-                <i class="fas fa-comments mr-1"></i> Comments
-              </a>
-            </div>
-          </div>
-
           <!-- PAGE CONTENT -->
-          <main class="p-6 lg:p-8 animate-fade-in">
+          <main class="animate-fade-in p-4 sm:p-6 lg:p-8">
             <%- body %>
           </main>
         </div>
@@ -432,6 +434,90 @@
             }
 
             notices.forEach(notice => showToast(notice.message, notice.type));
+          })();
+
+          (function () {
+            const sidebar = document.querySelector("[data-admin-sidebar]");
+            const overlay = document.querySelector("[data-admin-sidebar-overlay]");
+            const openButtons = Array.from(document.querySelectorAll("[data-admin-sidebar-open]"));
+            const closeButtons = Array.from(document.querySelectorAll("[data-admin-sidebar-close]"));
+            const mobileQuery = window.matchMedia("(max-width: 1023px)");
+
+            if (!(sidebar instanceof HTMLElement) || !(overlay instanceof HTMLElement)) {
+              return;
+            }
+
+            const setExpanded = (expanded) => {
+              openButtons.forEach((button) => {
+                if (button instanceof HTMLButtonElement) {
+                  button.setAttribute("aria-expanded", expanded ? "true" : "false");
+                }
+              });
+            };
+
+            const openSidebar = () => {
+              sidebar.classList.remove("-translate-x-full");
+              sidebar.classList.add("translate-x-0");
+              overlay.classList.remove("hidden");
+              document.body.classList.add("overflow-hidden");
+              setExpanded(true);
+            };
+
+            const closeSidebar = () => {
+              sidebar.classList.add("-translate-x-full");
+              sidebar.classList.remove("translate-x-0");
+              overlay.classList.add("hidden");
+              document.body.classList.remove("overflow-hidden");
+              setExpanded(false);
+            };
+
+            openButtons.forEach((button) => {
+              if (button instanceof HTMLButtonElement) {
+                button.addEventListener("click", () => {
+                  if (sidebar.classList.contains("-translate-x-full")) {
+                    openSidebar();
+                  } else {
+                    closeSidebar();
+                  }
+                });
+              }
+            });
+
+            closeButtons.forEach((button) => {
+              if (button instanceof HTMLButtonElement) {
+                button.addEventListener("click", closeSidebar);
+              }
+            });
+
+            overlay.addEventListener("click", closeSidebar);
+
+            sidebar.querySelectorAll("a").forEach((link) => {
+              link.addEventListener("click", () => {
+                if (mobileQuery.matches) {
+                  closeSidebar();
+                }
+              });
+            });
+
+            const syncSidebar = () => {
+              if (mobileQuery.matches) {
+                sidebar.classList.add("-translate-x-full");
+                sidebar.classList.remove("translate-x-0");
+                overlay.classList.add("hidden");
+                document.body.classList.remove("overflow-hidden");
+                setExpanded(false);
+                return;
+              }
+
+              sidebar.classList.remove("-translate-x-full");
+              sidebar.classList.add("translate-x-0");
+              overlay.classList.add("hidden");
+              document.body.classList.remove("overflow-hidden");
+              setExpanded(false);
+            };
+
+            mobileQuery.addEventListener("change", syncSidebar);
+            syncSidebar();
           })();
         </script>
 </body>
