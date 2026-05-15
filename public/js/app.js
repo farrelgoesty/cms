@@ -2130,6 +2130,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const maxItems = 10;
       const emptyStateClass = "rounded-2xl border border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-5 text-sm text-slate-500";
+      const getBannerSizeHint = (position) => {
+        if (position === "RIGHT") {
+          return "Ukuran media: 1000 x 800 px";
+        }
+
+        return "Ukuran media: 1600 x 400 px";
+      };
+
+      const updateSizeHint = (item) => {
+        if (!(item instanceof HTMLElement)) {
+          return;
+        }
+
+        const positionInput = item.querySelector("[data-banner-position-input]");
+        const sizeHelp = item.querySelector("[data-banner-size-help]");
+        if (!(positionInput instanceof HTMLSelectElement) || !(sizeHelp instanceof HTMLElement)) {
+          return;
+        }
+
+        sizeHelp.textContent = getBannerSizeHint(positionInput.value === "RIGHT" ? "RIGHT" : "TOP");
+      };
 
       const createBannerItem = (item = {}) => {
         const fragment = template.content.cloneNode(true);
@@ -2157,6 +2178,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         setImageFieldPreview(element, imageInput instanceof HTMLInputElement ? imageInput.value.trim() : "", "[data-banner-preview]", "[data-banner-placeholder]");
+        updateSizeHint(element);
         return element;
       };
 
@@ -2331,6 +2353,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (target.matches("[data-banner-position-input]")) {
+          const item = target.closest("[data-banner-item]");
+          updateSizeHint(item instanceof HTMLElement ? item : null);
           serialize();
         }
       });
