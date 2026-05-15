@@ -1317,6 +1317,183 @@ document.addEventListener("DOMContentLoaded", () => {
     const getLabel = (kind) => (kind === "tag" ? "Tag" : "Kategori");
     const getRoute = (kind) => taxonomyRoutes[kind] || taxonomyRoutes.category;
     const getCountSelector = (kind) => `[data-taxonomy-count="${escapeSelectorValue(kind)}"]`;
+    const taxonomyPagination = new Map();
+    const normalizeTaxonomyName = (value) => String(value || "").trim().toLowerCase();
+
+    const getTaxonomyList = (kind) => document.querySelector(`[data-taxonomy-list="${escapeSelectorValue(kind)}"]`);
+    const getTaxonomySearchInput = (kind) => document.querySelector(`[data-taxonomy-search="${escapeSelectorValue(kind)}"]`);
+    const getTaxonomyItems = (kind) => {
+      const list = getTaxonomyList(kind);
+      if (!(list instanceof HTMLElement)) {
+        return [];
+      }
+
+      return Array.from(list.querySelectorAll(`[data-taxonomy-item][data-taxonomy-kind="${escapeSelectorValue(kind)}"]`))
+        .filter((item) => item instanceof HTMLElement);
+    };
+
+    const renderTaxonomyPage = (kind, options = {}) => {
+      const state = taxonomyPagination.get(kind);
+      const list = getTaxonomyList(kind);
+      if (!state || !(list instanceof HTMLElement)) {
+        return;
+      }
+
+      const items = getTaxonomyItems(kind);
+      const searchInput = getTaxonomySearchInput(kind);
+      const emptyState = document.querySelector(`[data-taxonomy-empty="${escapeSelectorValue(kind)}"]`);
+      const count = document.querySelector(getCountSelector(kind));
+      const results = document.querySelector(`[data-taxonomy-results="${escapeSelectorValue(kind)}"]`);
+      const query = searchInput instanceof HTMLInputElement ? normalizeTaxonomyName(searchInput.value) : "";
+      const filteredItems = items.filter((item) => normalizeTaxonomyName(item.dataset.taxonomyName).includes(query));
+      const totalItems = items.length;
+      const filteredCount = filteredItems.length;
+      const totalPages = Math.max(1, Math.ceil(filteredCount / state.pageSize));
+      const focusId = typeof options.focusId === "string" ? options.focusId.trim() : "";
+      const requestedPage = Number(options.page);
+
+      if (focusId) {
+        const focusIndex = filteredItems.findIndex((item) => item.dataset.taxonomyId === focusId);
+        if (focusIndex >= 0) {
+          state.currentPage = Math.floor(focusIndex / state.pageSize) + 1;
+        }
+      } else if (Number.isFinite(requestedPage) && requestedPage > 0) {
+        state.currentPage = requestedPage;
+      }
+
+      state.currentPage = Math.min(Math.max(1, state.currentPage), totalPages);
+
+      const start = (state.currentPage - 1) * state.pageSize;
+      const end = start + state.pageSize;
+
+      items.forEach((item) => {
+        item.classList.add("hidden");
+      });
+
+      filteredItems.forEach((item, index) => {
+        item.classList.toggle("hidden", index < start || index >= end);
+      });
+
+      if (count instanceof HTMLElement) {
+        count.textContent = String(totalItems);
+      }
+
+      if (results instanceof HTMLElement) {
+        results.textContent = query
+          ? `Menampilkan ${filteredCount} dari ${totalItems} item`
+          : `Menampilkan ${filteredCount} item`;
+      }
+
+      if (emptyState instanceof HTMLElement) {
+        if (totalItems === 0) {
+          emptyState.classList.remove("hidden");
+          emptyState.textContent = `Belum ada ${kind === "tag" ? "tag" : "category"}. Tambahkan ${kind === "tag" ? "tag" : "category"} baru lewat tombol di atas.`;
+          if (!emptyState.parentElement) {
+            list.appendChild(emptyState);
+          }
+        } else if (filteredCount === 0) {
+          emptyState.classList.remove("hidden");
+          emptyState.textContent = `Tidak ada ${getLabel(kind).toLowerCase()} yang cocok dengan pencarian.`;
+          if (!emptyState.parentElement) {
+            list.appendChild(emptyState);
+          }
+        } else {
+          emptyState.classList.add("hidden");
+        }
+      }
+
+      if (state.pagination instanceof HTMLElement) {
+        state.pagination.classList.remove("hidden");
+        state.pagination.style.display = "flex";
+      }
+
+      if (state.current instanceof HTMLElement) {
+        state.current.textContent = String(state.currentPage);
+      }
+
+      if (state.total instanceof HTMLElement) {
+        state.total.textContent = String(totalPages);
+      }
+
+      if (state.prev instanceof HTMLButtonElement) {
+        state.prev.disabled = state.currentPage <= 1;
+      }
+
+      if (state.next instanceof HTMLButtonElement) {
+        state.next.disabled = state.currentPage >= totalPages;
+      }
+    };
+
+    const setupTaxonomyPagination = () => {
+      document.querySelectorAll("[data-taxonomy-panel]").forEach((panel) => {
+        if (!(panel instanceof HTMLElement)) {
+          return;
+        }
+
+        const kind = panel.getAttribute("data-taxonomy-panel");
+        if (!kind) {
+          return;
+        }
+
+        const pagination = panel.querySelector(`[data-taxonomy-pagination="${escapeSelectorValue(kind)}"]`);
+        const prev = panel.querySelector(`[data-taxonomy-page-prev="${escapeSelectorValue(kind)}"]`);
+        const next = panel.querySelector(`[data-taxonomy-page-next="${escapeSelectorValue(kind)}"]`);
+        const current = panel.querySelector(`[data-taxonomy-page-current="${escapeSelectorValue(kind)}"]`);
+        const total = panel.querySelector(`[data-taxonomy-page-total="${escapeSelectorValue(kind)}"]`);
+        const pageSizeValue = Number.parseInt(panel.getAttribute("data-taxonomy-page-size") || "8", 10);
+        const state = {
+          pageSize: Number.isFinite(pageSizeValue) && pageSizeValue > 0 ? pageSizeValue : 8,
+          currentPage: taxonomyPagination.get(kind)?.currentPage || 1,
+          pagination: pagination instanceof HTMLElement ? pagination : null,
+          prev: prev instanceof HTMLButtonElement ? prev : null,
+          next: next instanceof HTMLButtonElement ? next : null,
+          current: current instanceof HTMLElement ? current : null,
+          total: total instanceof HTMLElement ? total : null
+        };
+
+        taxonomyPagination.set(kind, state);
+
+        const search = getTaxonomySearchInput(kind);
+        if (search instanceof HTMLInputElement && !search.dataset.paginationBound) {
+          search.dataset.paginationBound = "true";
+          search.addEventListener("input", () => {
+            const currentState = taxonomyPagination.get(kind);
+            if (!currentState) {
+              return;
+            }
+
+            currentState.currentPage = 1;
+            renderTaxonomyPage(kind, { page: 1 });
+          });
+        }
+
+        if (state.prev instanceof HTMLButtonElement && !state.prev.dataset.paginationBound) {
+          state.prev.dataset.paginationBound = "true";
+          state.prev.addEventListener("click", () => {
+            const currentState = taxonomyPagination.get(kind);
+            if (!currentState) {
+              return;
+            }
+
+            renderTaxonomyPage(kind, { page: currentState.currentPage - 1 });
+          });
+        }
+
+        if (state.next instanceof HTMLButtonElement && !state.next.dataset.paginationBound) {
+          state.next.dataset.paginationBound = "true";
+          state.next.addEventListener("click", () => {
+            const currentState = taxonomyPagination.get(kind);
+            if (!currentState) {
+              return;
+            }
+
+            renderTaxonomyPage(kind, { page: currentState.currentPage + 1 });
+          });
+        }
+
+        renderTaxonomyPage(kind);
+      });
+    };
 
     const clearModalErrors = () => {
       if (modalErrors instanceof HTMLElement) {
@@ -1407,7 +1584,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const appendPostFormTaxonomyItem = (kind, item) => {
       const list = document.querySelector(`[data-taxonomy-list="${escapeSelectorValue(kind)}"]`);
       const emptyState = document.querySelector(`[data-taxonomy-empty="${escapeSelectorValue(kind)}"]`);
-      const count = document.querySelector(`[data-taxonomy-count="${escapeSelectorValue(kind)}"]`);
       const checkboxName = kind === "category" ? "categoryIds" : "tagIds";
 
       if (!(list instanceof HTMLElement) || !item || typeof item !== "object") {
@@ -1423,6 +1599,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const existing = document.querySelector(`input[name="${checkboxName}"][value="${escapeSelectorValue(id)}"]`);
       if (existing instanceof HTMLInputElement) {
         existing.checked = true;
+        renderTaxonomyPage(kind, { focusId: id });
         return;
       }
 
@@ -1436,6 +1613,7 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.taxonomyKind = kind;
       card.dataset.taxonomyId = id;
       card.dataset.taxonomyName = name;
+      card.dataset.taxonomySlug = String(item.slug || "").trim();
       card.innerHTML = `
         <label class="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
           <input
@@ -1474,11 +1652,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
       list.appendChild(card);
-
-      if (count instanceof HTMLElement) {
-        const currentCount = Number.parseInt(count.textContent || "0", 10);
-        count.textContent = String(Number.isFinite(currentCount) ? currentCount + 1 : 1);
-      }
+      renderTaxonomyPage(kind, { focusId: id });
     };
 
     const removePostFormTaxonomyItem = (kind, id) => {
@@ -1490,8 +1664,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const list = document.querySelector(`[data-taxonomy-list="${escapeSelectorValue(kind)}"]`);
       const emptyState = document.querySelector(`[data-taxonomy-empty="${escapeSelectorValue(kind)}"]`);
-      const count = document.querySelector(getCountSelector(kind));
-
       if (list instanceof HTMLElement && !list.querySelector("[data-taxonomy-item]") && emptyState instanceof HTMLElement) {
         emptyState.classList.remove("hidden");
         if (!emptyState.parentElement) {
@@ -1499,10 +1671,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      if (count instanceof HTMLElement) {
-        const currentCount = Number.parseInt(count.textContent || "0", 10);
-        count.textContent = String(Math.max(0, Number.isFinite(currentCount) ? currentCount - 1 : 0));
-      }
+      renderTaxonomyPage(kind);
     };
 
     const updatePostFormTaxonomyItem = (kind, item) => {
@@ -1527,6 +1696,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (deleteButton instanceof HTMLElement) {
         deleteButton.setAttribute("data-taxonomy-name", item.name);
       }
+
+      renderTaxonomyPage(kind, { focusId: String(item.id || "") });
     };
 
     const performRequest = async ({ kind, method, id = "", name = "" }) => {
@@ -1649,6 +1820,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.CMS_NOTIFY?.error(message);
       }
     };
+
+    setupTaxonomyPagination();
 
     document.addEventListener("click", (event) => {
       const target = event.target;
