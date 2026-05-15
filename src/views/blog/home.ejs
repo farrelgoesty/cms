@@ -1,180 +1,581 @@
-<% const featuredPosts = Array.isArray(posts) ? posts : []; %>
-<% const sidebarCategories = Array.isArray(categories) ? categories : []; %>
-<% const sidebarTags = Array.isArray(tags) ? tags : []; %>
+<!DOCTYPE html>
+<html lang="id">
 
-<section class="space-y-8">
-  <div class="wp-panel-strong overflow-hidden">
-    <div class="grid gap-0 lg:grid-cols-[minmax(0,1.25fr)_minmax(280px,0.75fr)]">
-      <div class="relative overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(34,113,177,0.16),_transparent_34%),radial-gradient(circle_at_bottom_left,_rgba(19,94,150,0.12),_transparent_32%)]"></div>
-        <div class="relative space-y-5">
-          <div class="flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.34em] text-brand-600">
-            <span class="rounded-full border border-brand-200 bg-brand-50 px-3 py-1">Modern CMS Blog</span>
-            <span class="rounded-full border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-3 py-1 text-slate-500">Responsive editorial hub</span>
-          </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Modern CMS Blog · Platform Konten Profesional</title>
+  <!-- Google Fonts: Inter -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap"
+    rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-          <div class="max-w-3xl">
-            <h1 class="text-3xl font-semibold leading-tight tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
-              Konten modern, dashboard admin, dan workflow editorial yang rapi.
-            </h1>
-            <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
-              Platform lengkap untuk menulis, mengelola artikel, dan tumbuh bersama audiens dengan pengalaman yang tetap nyaman di mobile.
-            </p>
-          </div>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f9fe;
+      color: #1a2c3e;
+      line-height: 1.5;
+    }
 
-          <div class="flex flex-wrap gap-3">
-            <a href="/admin/login" class="wp-btn wp-btn-primary">
-              <i class="fas fa-arrow-right-to-bracket"></i>
-              Login Admin
-            </a>
-            <a href="/admin/login" class="wp-btn wp-btn-secondary">
-              <i class="fas fa-pen-nib"></i>
-              Mulai menulis
-            </a>
-          </div>
+    /* container utama */
+    .home-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
 
-          <div class="flex flex-wrap gap-2">
-            <span class="wp-badge">Node.js</span>
-            <span class="wp-badge">Express</span>
-            <span class="wp-badge">Prisma</span>
-            <span class="wp-badge">Tailwind</span>
-          </div>
-        </div>
+    /* ========== HERO SECTION PREMIUM ========== */
+    .hero-premium {
+      background: linear-gradient(135deg, #0a2b3e 0%, #135e7a 50%, #1a7a8c 100%);
+      border-radius: 2rem;
+      padding: 2.5rem 2.8rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-premium::before {
+      content: "";
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(255, 255, 245, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-premium::after {
+      content: "";
+      position: absolute;
+      bottom: -20%;
+      left: -5%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(100, 200, 220, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 0.35rem 1.2rem;
+      border-radius: 40px;
+      color: rgba(255, 255, 250, 0.95);
+      width: fit-content;
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-top: 1.5rem;
+      max-width: 85%;
+      background: linear-gradient(135deg, #ffffff, #e0f2fe);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-desc {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: rgba(255, 255, 245, 0.85);
+      max-width: 70%;
+    }
+
+    .tech-stack {
+      margin-top: 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    .tech-badge {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 100px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      color: rgba(255, 255, 245, 0.9);
+      border: 0.5px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.8rem;
+    }
+
+    .btn-primary-glass {
+      background: white;
+      border: none;
+      padding: 0.7rem 1.6rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #0a2b3e;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary-glass:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.2);
+      background: #f8faff;
+    }
+
+    .btn-outline-light {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.7rem 1.6rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all 0.25s;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn-outline-light:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .hero-footnote {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 240, 0.7);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ========== GRID LAYOUT MODERN ========== */
+    .modern-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 0.85fr;
+      gap: 2rem;
+    }
+
+    /* ========== POST CARD MODERN ========== */
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .post-card-modern {
+      background: white;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+      border: 1px solid #eef2f8;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .post-card-modern:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 36px -12px rgba(0, 0, 0, 0.12);
+      border-color: #dfe8f0;
+    }
+
+    .card-image {
+      aspect-ratio: 16/9;
+      background: #eef2f8;
+      overflow: hidden;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .post-card-modern:hover .card-image img {
+      transform: scale(1.03);
+    }
+
+    .card-content {
+      padding: 1.4rem 1.6rem 1.6rem 1.6rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .post-status {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #1b6b8f;
+      display: inline-block;
+    }
+
+    .post-title-card {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-top: 0.5rem;
+    }
+
+    .post-title-card a {
+      text-decoration: none;
+      color: #1f3a5f;
+      transition: color 0.2s;
+    }
+
+    .post-title-card a:hover {
+      color: #1b6b8f;
+    }
+
+    .post-excerpt {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #556b82;
+      margin-top: 0.7rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .post-meta {
+      margin-top: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #8196ae;
+      border-top: 1px solid #eff3f8;
+      padding-top: 1rem;
+    }
+
+    /* ========== SIDEBAR MODERN ========== */
+    .sidebar-card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 1px solid #eef2f8;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      transition: transform 0.2s;
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: #1f3a5f;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e6f0f9;
+    }
+
+    .tag-group,
+    .category-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .pill-link {
+      background: #f0f4fa;
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-decoration: none;
+      color: #2c5a7a;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pill-link:hover {
+      background: #e3edf6;
+      color: #0f4a6e;
+      transform: translateY(-1px);
+    }
+
+    /* pagination modern */
+    .pagination-modern {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .pagination-modern a,
+    .pagination-modern span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.5rem;
+      height: 2.5rem;
+      padding: 0 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      background: white;
+      color: #2c5a7a;
+      border: 1px solid #e2edf2;
+      transition: all 0.2s;
+    }
+
+    .pagination-modern a:hover {
+      background: #eef3fc;
+      border-color: #bdd4e4;
+    }
+
+    .pagination-modern .active-page {
+      background: #1b6b8f;
+      color: white;
+      border-color: #1b6b8f;
+    }
+
+    /* responsive */
+    @media (max-width: 960px) {
+      .modern-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+        max-width: 100%;
+      }
+
+      .hero-desc {
+        max-width: 100%;
+      }
+
+      .posts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-premium {
+        padding: 2rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .home-container {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="home-container">
+    <!-- HERO SECTION PREMIUM -->
+    <div class="hero-premium">
+      <div class="hero-badge">
+        <i class="fas fa-crown"></i> MODERN CMS BLOG
       </div>
-
-      <div class="border-t border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-6 py-8 sm:px-8 lg:border-l lg:border-t-0 lg:px-8 lg:py-12">
-        <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-          <div class="rounded-3xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-brand-600">Artikel</p>
-            <p class="mt-3 text-3xl font-semibold text-slate-950"><%= featuredPosts.length %></p>
-            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Konten terbaru yang siap dibaca.</p>
-          </div>
-          <div class="rounded-3xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-brand-600">Kategori</p>
-            <p class="mt-3 text-3xl font-semibold text-slate-950"><%= sidebarCategories.length %></p>
-            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Topik yang tertata rapi.</p>
-          </div>
-          <div class="rounded-3xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] p-5 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-brand-600">Tag</p>
-            <p class="mt-3 text-3xl font-semibold text-slate-950"><%= sidebarTags.length %></p>
-            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Pencarian topik lebih cepat.</p>
-          </div>
-        </div>
+      <h1 class="hero-title">Konten modern, dashboard admin, dan workflow editorial yang rapi.</h1>
+      <p class="hero-desc">Platform lengkap untuk menulis, mengelola artikel, dan tumbuh bersama audiens.</p>
+      <div class="tech-stack">
+        <span class="tech-badge">Node.js</span>
+        <span class="tech-badge">Express</span>
+        <span class="tech-badge">TypeScript</span>
+        <span class="tech-badge">MySQL + Prisma</span>
+        <span class="tech-badge">EJS + Tailwind</span>
+        <span class="tech-badge">JWT + Multer + Sharp + Zod</span>
+      </div>
+      <div class="hero-buttons">
+        <a href="/admin/login" class="btn-primary-glass"><i class="fas fa-arrow-right-to-bracket"></i> Login Admin</a>
+        <a href="/admin/register" class="btn-outline-light"><i class="fas fa-user-plus"></i> Register Admin</a>
+      </div>
+      <div class="hero-footnote">
+        <i class="fas fa-chalkboard-user"></i> Masuk ke dashboard untuk menulis, mengatur komentar, dan mengelola
+        artikel.
       </div>
     </div>
-  </div>
 
-  <div class="grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.75fr)] lg:items-start">
-    <div class="space-y-6">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.32em] text-brand-600">Artikel terbaru</p>
-          <h2 class="mt-2 text-2xl font-semibold text-slate-950">Bacaan terbaru</h2>
-        </div>
-        <p class="text-sm text-slate-500 dark:text-slate-400">Card otomatis turun ke satu kolom di layar kecil.</p>
-      </div>
-
-      <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-        <% if (featuredPosts.length) { %>
-          <% featuredPosts.forEach((post) => { %>
-            <article class="group wp-panel overflow-hidden h-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              <a href="/posts/<%= post.slug %>" class="block">
-                <div class="aspect-[16/10] overflow-hidden bg-[color:var(--wp-surface-2)]">
+    <!-- MAIN GRID: POSTS + SIDEBAR -->
+    <div class="modern-grid">
+      <!-- MAIN CONTENT AREA -->
+      <div>
+        <div class="posts-grid">
+          <% if (typeof posts !=='undefined' && posts && posts.length) { %>
+            <% posts.forEach((post)=> { %>
+              <article class="post-card-modern">
+                <div class="card-image">
                   <% if (post.featuredImage) { %>
-                    <img src="<%= post.featuredImage %>" alt="<%= post.title %>" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
-                  <% } else { %>
-                    <div class="flex h-full w-full items-center justify-center text-slate-400">
-                      <i class="fas fa-image text-3xl"></i>
-                    </div>
+                    <img src="<%= post.featuredImage %>" alt="<%= post.title %>" loading="lazy" />
+                    <% } else { %>
+                      <div
+                        style="background: linear-gradient(135deg, #dce9f2, #eef2f8); height: 100%; display: flex; align-items: center; justify-content: center; color: #8aa3bc;">
+                        <i class="fas fa-image fa-2x"></i>
+                      </div>
+                      <% } %>
+                </div>
+                <div class="card-content">
+                  <span class="post-status"><i class="far fa-newspaper"></i>
+                    <%= post.status ? post.status.toUpperCase() : 'PUBLISHED' %>
+                  </span>
+                  <h2 class="post-title-card">
+                    <a href="/posts/<%= post.slug %>">
+                      <%= post.title %>
+                    </a>
+                  </h2>
+                  <p class="post-excerpt">
+                    <%= post.subheadline || post.excerpt || (post.content ? post.content.replace(/<[^>]*>/g,
+                      '').slice(0, 140) : 'Tidak ada ringkasan tersedia.') %>
+                  </p>
+                  <div class="post-meta">
+                    <span><i class="far fa-clock"></i>
+                      <%= post.readingTime || '2' %> min read
+                    </span>
+                    <span><i class="fas fa-eye"></i>
+                      <%= post.viewCount || 0 %> views
+                    </span>
+                  </div>
+                </div>
+              </article>
+              <% }) %>
+                <% } else { %>
+                  <div
+                    style="grid-column: 1/-1; text-align: center; padding: 3rem; background: white; border-radius: 1.5rem;">
+                    <i class="fas fa-box-open fa-3x" style="color: #cbdde9;"></i>
+                    <p style="margin-top: 1rem; color: #5f7d9c;">Belum ada artikel. Silakan login ke dashboard untuk
+                      menulis konten pertama.</p>
+                  </div>
                   <% } %>
-                </div>
-              </a>
+        </div>
 
-              <div class="flex h-full flex-col p-5">
-                <div class="flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-brand-600">
-                  <span><%= post.status ? post.status.toUpperCase() : "PUBLISHED" %></span>
-                  <% if (post.readingTime) { %>
-                    <span class="rounded-full border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-2.5 py-1 tracking-normal text-slate-500"><%= post.readingTime %> min</span>
-                  <% } %>
-                </div>
+        <!-- PAGINATION (partial style modern) -->
+        <% if (typeof pagination !=='undefined' && pagination && pagination.totalPages> 1) { %>
+          <div class="pagination-modern">
+            <% if (pagination.hasPrev) { %>
+              <a href="?page=<%= pagination.prevPage %>"><i class="fas fa-chevron-left"></i> Sebelumnya</a>
+              <% } else { %>
+                <span class="disabled" style="opacity:0.4"><i class="fas fa-chevron-left"></i> Sebelumnya</span>
+                <% } %>
 
-                <h3 class="mt-3 text-lg font-semibold leading-snug text-slate-950 transition-colors group-hover:text-brand-600 dark:text-white">
-                  <a href="/posts/<%= post.slug %>"><%= post.title %></a>
-                </h3>
+                  <% let startPage=Math.max(1, pagination.currentPage - 2); let endPage=Math.min(pagination.totalPages,
+                    pagination.currentPage + 2); if (endPage - startPage < 4) { if (startPage> 1) startPage =
+                    Math.max(1, endPage - 4);
+                    if (endPage < pagination.totalPages) endPage=Math.min(pagination.totalPages, startPage + 4); } for
+                      (let p=startPage; p <=endPage; p++) { %>
+                      <% if (p===pagination.currentPage) { %>
+                        <span class="active-page">
+                          <%= p %>
+                        </span>
+                        <% } else { %>
+                          <a href="?page=<%= p %>">
+                            <%= p %>
+                          </a>
+                          <% } %>
+                            <% } %>
 
-                <p class="mt-3 line-clamp-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  <%= post.subheadline || post.excerpt || (post.content ? post.content.replace(/<[^>]*>/g, "").slice(0, 140) : "Tidak ada ringkasan tersedia.") %>
-                </p>
-
-                <div class="mt-5 flex flex-wrap items-center gap-3 border-t border-[color:var(--wp-border)] pt-4 text-xs text-slate-500 dark:text-slate-400">
-                  <span><i class="far fa-clock mr-1"></i><%= post.readingTime || "2" %> min read</span>
-                  <span><i class="fas fa-eye mr-1"></i><%= post.viewCount || 0 %> views</span>
-                </div>
-              </div>
-            </article>
-          <% }) %>
-        <% } else { %>
-          <div class="sm:col-span-2 xl:col-span-3 rounded-3xl border border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] p-8 text-sm text-slate-500 dark:text-slate-400">
-            Belum ada artikel. Silakan login ke dashboard untuk menulis konten pertama.
+                              <% if (pagination.hasNext) { %>
+                                <a href="?page=<%= pagination.nextPage %>">Selanjutnya <i
+                                    class="fas fa-chevron-right"></i></a>
+                                <% } else { %>
+                                  <span class="disabled" style="opacity:0.4">Selanjutnya <i
+                                      class="fas fa-chevron-right"></i></span>
+                                  <% } %>
           </div>
-        <% } %>
+          <% } %>
       </div>
 
-      <% if (typeof pagination !== "undefined" && pagination && pagination.totalPages > 1) { %>
-        <%- include('../partials/pagination', { pagination }) %>
-      <% } %>
+      <!-- SIDEBAR MODERN -->
+      <aside>
+        <!-- Categories widget -->
+        <div class="sidebar-card">
+          <div class="sidebar-title">
+            <i class="fas fa-folder-tree" style="color: #1b6b8f;"></i> Kategori
+          </div>
+          <div class="category-group">
+            <% if (typeof categories !=='undefined' && categories && categories.length) { %>
+              <% categories.forEach((category)=> { %>
+                <a href="/categories/<%= category.slug %>" class="pill-link"><i class="fas fa-tag"></i>
+                  <%= category.name %>
+                </a>
+                <% }) %>
+                  <% } else { %>
+                    <span class="pill-link" style="background:#f5f7fb;">Tidak ada kategori</span>
+                    <% } %>
+          </div>
+        </div>
+
+        <!-- Tags widget -->
+        <div class="sidebar-card">
+          <div class="sidebar-title">
+            <i class="fas fa-hashtag" style="color: #1b6b8f;"></i> Populer Tags
+          </div>
+          <div class="tag-group">
+            <% if (typeof tags !=='undefined' && tags && tags.length) { %>
+              <% tags.forEach((tag)=> { %>
+                <a href="/tags/<%= tag.slug %>" class="pill-link">#<%= tag.name %></a>
+                <% }) %>
+                  <% } else { %>
+                    <span class="pill-link" style="background:#f5f7fb;">Belum ada tag</span>
+                    <% } %>
+          </div>
+        </div>
+
+        <!-- Bonus widget: informasi ringkas -->
+        <div class="sidebar-card">
+          <div class="sidebar-title">
+            <i class="fas fa-chart-simple"></i> Platform Insight
+          </div>
+          <ul style="list-style: none; font-size: 0.8rem; color: #4a627a;">
+            <li style="margin-bottom: 0.5rem;"><i class="fas fa-database"></i> Real-time analytics</li>
+            <li style="margin-bottom: 0.5rem;"><i class="fas fa-shield"></i> JWT + CSRF protection</li>
+            <li><i class="fas fa-images"></i> Optimasi gambar via Sharp</li>
+          </ul>
+        </div>
+      </aside>
     </div>
-
-    <aside class="space-y-6 lg:sticky lg:top-28 lg:self-start">
-      <div class="wp-panel p-6">
-        <div class="sidebar-title border-none pb-0 text-brand-600">
-          <i class="fas fa-folder-tree"></i> Kategori
-        </div>
-        <div class="mt-4 flex flex-wrap gap-2">
-          <% if (sidebarCategories.length) { %>
-            <% sidebarCategories.forEach((category) => { %>
-              <a href="/categories/<%= category.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= category.name %></a>
-            <% }) %>
-          <% } else { %>
-            <span class="wp-btn wp-btn-pill px-3 py-2 text-sm opacity-70">Tidak ada kategori</span>
-          <% } %>
-        </div>
-      </div>
-
-      <div class="wp-panel p-6">
-        <div class="sidebar-title border-none pb-0 text-brand-600">
-          <i class="fas fa-hashtag"></i> Tags
-        </div>
-        <div class="mt-4 flex flex-wrap gap-2">
-          <% if (sidebarTags.length) { %>
-            <% sidebarTags.forEach((tag) => { %>
-              <a href="/tags/<%= tag.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm">#<%= tag.name %></a>
-            <% }) %>
-          <% } else { %>
-            <span class="wp-btn wp-btn-pill px-3 py-2 text-sm opacity-70">Belum ada tag</span>
-          <% } %>
-        </div>
-      </div>
-
-      <div class="wp-panel p-6">
-        <div class="sidebar-title border-none pb-0 text-brand-600">
-          <i class="fas fa-shield-halved"></i> Insight
-        </div>
-        <ul class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
-          <li class="flex items-center gap-3 rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3">
-            <i class="fas fa-bolt text-brand-600"></i>
-            Responsive grid di semua ukuran layar
-          </li>
-          <li class="flex items-center gap-3 rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3">
-            <i class="fas fa-mobile-screen text-brand-600"></i>
-            Header dan kartu yang nyaman di mobile
-          </li>
-          <li class="flex items-center gap-3 rounded-2xl border border-[color:var(--wp-border)] bg-[color:var(--wp-surface-2)] px-4 py-3">
-            <i class="fas fa-image text-brand-600"></i>
-            Thumbnail dan konten tetap proporsional
-          </li>
-        </ul>
-      </div>
-    </aside>
   </div>
-</section>
+</body>
+
+</html>

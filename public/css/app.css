@@ -603,6 +603,13 @@ body {
   border-radius: 1rem;
 }
 
+.line-clamp-3 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 .article-content figure {
   margin: 1.5rem 0;
 }

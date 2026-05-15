@@ -2153,7 +2153,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (positionInput instanceof HTMLSelectElement) {
-          positionInput.value = item.position === "LEFT" || item.position === "RIGHT" ? item.position : "TOP";
+          positionInput.value = item.position === "LEFT" || item.position === "RIGHT" ? "RIGHT" : "TOP";
         }
 
         setImageFieldPreview(element, imageInput instanceof HTMLInputElement ? imageInput.value.trim() : "", "[data-banner-preview]", "[data-banner-placeholder]");
@@ -2184,7 +2184,7 @@ document.addEventListener("DOMContentLoaded", () => {
               }
 
               const url = typeof item.url === "string" ? item.url.trim() : "";
-              const position = item.position === "LEFT" || item.position === "RIGHT" ? item.position : "TOP";
+              const position = item.position === "LEFT" || item.position === "RIGHT" ? "RIGHT" : "TOP";
               return {
                 image,
                 ...(url ? { url } : {}),
@@ -2227,7 +2227,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const positionInput = item.querySelector("[data-banner-position-input]");
             const image = imageInput instanceof HTMLInputElement ? imageInput.value.trim() : "";
             const url = urlInput instanceof HTMLInputElement ? urlInput.value.trim() : "";
-            const position = positionInput instanceof HTMLSelectElement && (positionInput.value === "LEFT" || positionInput.value === "RIGHT") ? positionInput.value : "TOP";
+            const position = positionInput instanceof HTMLSelectElement ? (positionInput.value === "RIGHT" ? "RIGHT" : "TOP") : "TOP";
 
             if (!image) {
               return null;

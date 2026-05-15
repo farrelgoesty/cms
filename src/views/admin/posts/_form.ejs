@@ -260,8 +260,8 @@
         </div>
       </div>
 
-        <div class="grid gap-5 lg:grid-cols-2">
-        <div class="space-y-3" data-featured-image-field>
+      <div class="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
+        <div class="space-y-3 lg:col-span-2" data-featured-image-field>
           <div class="flex items-center justify-between gap-3">
             <label class="label" for="featuredImage">Featured image</label>
             <span class="wp-badge">Max 5 MB</span>
@@ -272,7 +272,7 @@
               <button class="wp-btn wp-btn-secondary" type="button" data-media-picker-open="thumbnail">Pilih dari Media Library</button>
               <button class="wp-btn wp-btn-ghost" type="button" data-featured-image-remove>Hapus</button>
             </div>
-            <div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
+            <div class="mt-4 grid gap-4 lg:grid-cols-[minmax(220px,0.68fr)_minmax(0,1.32fr)]">
               <label class="flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[color:var(--wp-border)] bg-[color:var(--wp-surface)] p-4 text-center transition-all duration-200 hover:border-brand-500 hover:bg-brand-50/50 dark:hover:bg-brand-500/10" data-featured-image-dropzone>
                 <input class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" data-featured-image-file />
                 <img class="<%= featuredImageValue ? '' : 'hidden' %> max-h-52 w-full rounded-2xl object-cover" data-featured-image-preview src="<%= featuredImageValue %>" alt="Featured image preview" />
