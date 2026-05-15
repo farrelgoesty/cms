@@ -1,6 +1,6 @@
 import { normalizeLinkUrl } from "./media";
 
-export type BannerPositionValue = "TOP" | "LEFT" | "RIGHT";
+export type BannerPositionValue = "TOP" | "RIGHT";
 
 export type BannerItem = {
   image: string;
@@ -9,10 +9,14 @@ export type BannerItem = {
 };
 
 function isBannerPosition(value: unknown): value is BannerPositionValue {
-  return value === "TOP" || value === "LEFT" || value === "RIGHT";
+  return value === "TOP" || value === "RIGHT";
 }
 
 function normalizePosition(value: unknown): BannerPositionValue {
+  if (value === "LEFT") {
+    return "RIGHT";
+  }
+
   return isBannerPosition(value) ? value : "TOP";
 }
 

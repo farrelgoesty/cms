@@ -78,7 +78,7 @@
 
     const imageUrl = typeof item.imageUrl === "string" ? item.imageUrl.trim() : "";
     const url = typeof item.url === "string" ? item.url.trim() : "";
-    const position = item.position === "LEFT" || item.position === "RIGHT" ? item.position : "TOP";
+    const position = item.position === "LEFT" || item.position === "RIGHT" ? "RIGHT" : "TOP";
 
     return {
       image,
@@ -88,10 +88,7 @@
     };
   })
   .filter(Boolean); %>
-<% const topBannerItems = normalizedBannerItems.filter((item) => item.position === "TOP"); %>
-<% const leftBannerItems = normalizedBannerItems.filter((item) => item.position === "LEFT"); %>
 <% const rightBannerItems = normalizedBannerItems.filter((item) => item.position === "RIGHT"); %>
-<% const bannerEnabled = Boolean(normalizedBannerItems.length); %>
 <% function renderYoutubeBlock() { %>
   <% if (youtubeEnabled) { %>
     <section class="wp-panel overflow-hidden">
@@ -116,9 +113,9 @@
 <% function renderBannerBlock(item, index) { %>
   <% if (item) { %>
     <% const bannerExternal = /^https?:\/\//i.test(item.url || ""); %>
-    <% const bannerPlacement = item.position === "LEFT" || item.position === "RIGHT" ? "side" : "top"; %>
-    <% const bannerAspectClass = bannerPlacement === "top" ? "aspect-[21/9]" : "aspect-[4/5]"; %>
-    <section class="wp-panel overflow-hidden">
+    <% const bannerPlacement = item.position === "RIGHT" ? "side" : "top"; %>
+    <% const bannerAspectClass = bannerPlacement === "top" ? "aspect-[21/9]" : "aspect-square"; %>
+    <section class="wp-panel overflow-hidden <%= bannerPlacement === 'side' ? 'mx-auto max-w-[220px]' : '' %>">
       <% if (item.url) { %>
         <a href="<%= item.url %>" <%= bannerExternal ? 'target="_blank" rel="noopener noreferrer"' : '' %> class="block bg-[color:var(--wp-surface-2)]">
           <div class="<%= bannerAspectClass %> w-full overflow-hidden">
@@ -182,73 +179,30 @@
     <% } %>
   </header>
 
-  <% if (topBannerItems.length) { %>
-    <div class="space-y-4">
-      <% topBannerItems.forEach((item, index) => { %>
-        <% renderBannerBlock(item, index); %>
-      <% }) %>
-    </div>
-  <% } %>
-
   <% if (youtubePosition === "TOP") { %>
     <div><% renderYoutubeBlock(); %></div>
   <% } %>
 
   <div class="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.7fr)] lg:items-start">
     <div class="space-y-8">
-      <% if (leftBannerItems.length || rightBannerItems.length) { %>
-        <div class="grid gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.16fr)_minmax(0,0.92fr)] lg:items-start">
-          <div class="space-y-4">
-            <% leftBannerItems.forEach((item, index) => { %>
-              <% renderBannerBlock(item, index); %>
-            <% }) %>
-          </div>
-
-          <section class="wp-panel p-8">
-            <div class="article-content prose prose-lg max-w-none">
-              <%- post.content %>
-            </div>
-
-            <% if (youtubePosition === "MIDDLE") { %>
-              <div class="mt-8"><% renderYoutubeBlock(); %></div>
-            <% } %>
-
-            <div class="mt-8 flex flex-wrap gap-2">
-              <% post.postCategories.forEach((item) => { %>
-                <a href="/categories/<%= item.category.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.category.name %></a>
-              <% }) %>
-              <% post.postTags.forEach((item) => { %>
-                <a href="/tags/<%= item.tag.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.tag.name %></a>
-              <% }) %>
-            </div>
-          </section>
-
-          <div class="space-y-4">
-            <% rightBannerItems.forEach((item, index) => { %>
-              <% renderBannerBlock(item, index); %>
-            <% }) %>
-          </div>
+      <section class="wp-panel p-8">
+        <div class="article-content prose prose-lg max-w-none">
+          <%- post.content %>
         </div>
-      <% } else { %>
-        <section class="wp-panel p-8">
-          <div class="article-content prose prose-lg max-w-none">
-            <%- post.content %>
-          </div>
 
-          <% if (youtubePosition === "MIDDLE") { %>
-            <div class="mt-8"><% renderYoutubeBlock(); %></div>
-          <% } %>
+        <% if (youtubePosition === "MIDDLE") { %>
+          <div class="mt-8"><% renderYoutubeBlock(); %></div>
+        <% } %>
 
-          <div class="mt-8 flex flex-wrap gap-2">
-            <% post.postCategories.forEach((item) => { %>
-              <a href="/categories/<%= item.category.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.category.name %></a>
-            <% }) %>
-            <% post.postTags.forEach((item) => { %>
-              <a href="/tags/<%= item.tag.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.tag.name %></a>
-            <% }) %>
-          </div>
-        </section>
-      <% } %>
+        <div class="mt-8 flex flex-wrap gap-2">
+          <% post.postCategories.forEach((item) => { %>
+            <a href="/categories/<%= item.category.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.category.name %></a>
+          <% }) %>
+          <% post.postTags.forEach((item) => { %>
+            <a href="/tags/<%= item.tag.slug %>" class="wp-btn wp-btn-pill px-3 py-2 text-sm"><%= item.tag.name %></a>
+          <% }) %>
+        </div>
+      </section>
 
       <% if (safeFaqItems.length) { %>
         <section id="faq" class="wp-panel p-8">
@@ -442,6 +396,14 @@
           <button type="button" class="wp-btn wp-btn-secondary flex-1" data-share-copy>Salin tautan</button>
         </div>
       </div>
+
+      <% if (rightBannerItems.length) { %>
+        <div class="space-y-4">
+          <% rightBannerItems.forEach((item, index) => { %>
+            <% renderBannerBlock(item, index); %>
+          <% }) %>
+        </div>
+      <% } %>
     </aside>
   </div>
 </article>

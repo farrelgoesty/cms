@@ -9,7 +9,7 @@ const faqItemSchema = z.object({
 const bannerItemSchema = z.object({
   image: z.string().trim().min(1).max(2048),
   url: z.string().trim().max(2048).optional().or(z.literal("")),
-  position: z.enum(["TOP", "LEFT", "RIGHT"]).default("TOP")
+  position: z.enum(["TOP", "RIGHT"]).default("TOP")
 });
 
 function parseJsonValue(value: unknown) {
@@ -41,7 +41,7 @@ export const postSchema = z.object({
   featuredImage: z.string().trim().optional().or(z.literal("")),
   bannerImage: z.string().trim().optional().or(z.literal("")),
   bannerUrl: z.string().trim().max(2048).optional().or(z.literal("")),
-  bannerPosition: z.enum(["TOP", "LEFT", "RIGHT"]).default("TOP"),
+  bannerPosition: z.enum(["TOP", "RIGHT"]).default("TOP"),
   bannerItems: z.preprocess(parseJsonValue, z.array(bannerItemSchema).max(10)),
   seoTitle: z.string().trim().optional().or(z.literal("")),
   seoDescription: z.string().trim().optional().or(z.literal("")),
