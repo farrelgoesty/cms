@@ -69,9 +69,9 @@
       window.CMS_CSRF_TOKEN = "";
       window.CMS_INITIAL_NOTICES = <%- JSON.stringify((typeof notice !== "undefined" && notice) ? [{ type: typeof noticeType !== "undefined" && noticeType ? noticeType : "info", message: notice }] : []) %>;
     </script>
-    <header class="sticky top-0 z-40 px-3 pt-3 sm:px-4 lg:px-6">
-      <div class="blog-nav-shell mx-auto max-w-7xl">
-        <div class="flex flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center lg:gap-5 lg:px-5">
+    <header class="sticky top-0 z-40 px-2 pt-2 sm:px-3 lg:px-4">
+      <div class="blog-nav-shell mx-auto w-full max-w-[96rem]">
+        <div class="flex flex-col gap-2.5 px-3 py-3 lg:flex-row lg:items-center lg:gap-4 lg:px-4">
           <a href="/" class="blog-brand-card group">
             <span class="blog-brand-mark inline-flex h-11 w-11 items-center justify-center bg-gradient-to-br from-brand-500 to-brand-700 text-xl font-bold leading-none text-white shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5">C</span>
             <span class="blog-brand-copy">
